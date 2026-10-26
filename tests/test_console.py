@@ -16,6 +16,7 @@ def example_data():
     alchemical = dict(
         folder=None,
         status="Waiting",
+        remark="",
         convergence="unknown",
         total_production_ns=None,
         completed_production_ns=None,
@@ -28,7 +29,11 @@ def example_data():
                     "ligand_01": {
                         "repeats": {
                             repeat: {
-                                "vanilla": {"folder": None, "status": "Complete"},
+                                "vanilla": {
+                                    "folder": None,
+                                    "status": "Complete",
+                                    "remark": "",
+                                },
                                 "alchemical_complex": deepcopy(alchemical),
                             }
                             for repeat in (2, 1)
@@ -46,6 +51,117 @@ def complex_record(document):
 
 
 class ValidationTests(unittest.TestCase):
+    def test_alchemical_production_files_are_optional_and_preserved(self):
+        document = example_data()
+        original_views = prepare_views(document)
+        compound = complex_record(document)
+        for run in (
+            compound["repeats"][1]["alchemical_complex"],
+            compound["alchemical_ligand"],
+        ):
+            run["production_files"] = {
+                "trajectory": "{stage}.prod.{number}.xtc",
+                "log": "{stage}.prod.{number}.log",
+                "mdp": "custom.mdp",
+            }
+        self.assertEqual(validate_data(document), [])
+        self.assertEqual(prepare_views(document), original_views)
+        self.assertEqual(render_page(document).count('class="run-row"'), 5)
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "data.yaml"
+            source.write_text(yaml.safe_dump(document))
+            self.assertEqual(load_data(source), document)
+
+    def test_invalid_production_files_have_field_specific_errors(self):
+        files = {
+            "trajectory": "traj_comp.xtc",
+            "log": "md.log",
+            "mdp": "{stage}.prod.{number}.mdp",
+        }
+        for value in (None, [], "md.log"):
+            document = example_data()
+            complex_record(document)["alchemical_ligand"]["production_files"] = value
+            self.assertEqual(
+                validate_data(document),
+                [
+                    "datasets.example.complexes.ligand_01.alchemical_ligand.production_files: expected a mapping"
+                ],
+            )
+        for field in files:
+            for value in (
+                None,
+                42,
+                True,
+                "",
+                " ",
+                ".",
+                "..",
+                "/tmp/file",
+                "dir/file",
+                "dir\\file",
+                "file\0",
+                "{unknown}.log",
+                "{stage.log}",
+                "{stage!r}.log",
+                "{number:02}.log",
+                "{stage",
+                "stage}",
+            ):
+                with self.subTest(field=field, value=value):
+                    document = example_data()
+                    complex_record(document)["alchemical_ligand"][
+                        "production_files"
+                    ] = {**files, field: value}
+                    errors = validate_data(document)
+                    self.assertTrue(
+                        any(f".production_files.{field}:" in error for error in errors),
+                        errors,
+                    )
+            document = example_data()
+            incomplete_files = files.copy()
+            del incomplete_files[field]
+            complex_record(document)["alchemical_ligand"]["production_files"] = (
+                incomplete_files
+            )
+            self.assertTrue(
+                any(
+                    f".production_files.{field}: required" in error
+                    for error in validate_data(document)
+                )
+            )
+        document = example_data()
+        complex_record(document)["alchemical_ligand"]["production_files"] = {
+            **files,
+            "extra": "extra.log",
+        }
+        self.assertTrue(
+            any(
+                ".production_files.extra: unrecognised" in error
+                for error in validate_data(document)
+            )
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "data.yaml"
+            source.write_text(yaml.safe_dump(document))
+            with self.assertRaisesRegex(
+                ValueError, r"alchemical_ligand.production_files.extra"
+            ):
+                load_data(source)
+
+    def test_vanilla_rejects_production_files(self):
+        document = example_data()
+        complex_record(document)["repeats"][1]["vanilla"]["production_files"] = {
+            "trajectory": "prod.xtc",
+            "log": "prod.log",
+            "mdp": "prod.mdp",
+        }
+        self.assertTrue(
+            any(
+                ".vanilla.production_files: unrecognised" in error
+                for error in validate_data(document)
+            )
+        )
+
     def test_valid_unknowns_and_extensions(self):
         document = example_data()
         run = complex_record(document)["alchemical_ligand"]
@@ -113,6 +229,28 @@ class ValidationTests(unittest.TestCase):
         self.assertTrue(
             any("unrecognised field" in error for error in validate_data(document))
         )
+
+    def test_remark_requires_text_for_every_run_type(self):
+        for kind in ("vanilla", "alchemical_complex", "alchemical_ligand"):
+            document = example_data()
+            compound = complex_record(document)
+            run = (
+                compound[kind]
+                if kind == "alchemical_ligand"
+                else compound["repeats"][1][kind]
+            )
+            for value in ("", "Check this run\nBefore extending", None, 12, []):
+                with self.subTest(kind=kind, value=value):
+                    run["remark"] = value
+                    errors = validate_data(document)
+                    if isinstance(value, str):
+                        self.assertEqual(errors, [])
+                    else:
+                        self.assertTrue(any(".remark:" in error for error in errors))
+            del run["remark"]
+            self.assertTrue(
+                any(".remark:" in error for error in validate_data(document))
+            )
 
     def test_empty_collections(self):
         for document in (
@@ -184,6 +322,26 @@ class RenderingTests(unittest.TestCase):
         self.assertNotIn("<script src=", page)
         self.assertNotIn("<link ", page)
         self.assertIn("Website generated:", page)
+
+    def test_remarks_render_for_all_run_types_and_escape_html(self):
+        document = example_data()
+        compound = complex_record(document)
+        compound["repeats"][1]["vanilla"]["remark"] = "Vanilla note"
+        compound["repeats"][1]["alchemical_complex"]["remark"] = "Complex note"
+        compound["alchemical_ligand"]["remark"] = '<script>alert("remark")</script>'
+        _, runs = prepare_views(document)
+        self.assertEqual(
+            {run["remark"] for run in runs},
+            {"", "Vanilla note", "Complex note", '<script>alert("remark")</script>'},
+        )
+        page = render_page(document)
+        self.assertIn('data-column="9" data-numeric="false">Remark', page)
+        self.assertEqual(page.count('<td class="remark">'), 5)
+        self.assertIn('<td class="remark">Vanilla note</td>', page)
+        self.assertIn('<td class="remark">Complex note</td>', page)
+        self.assertIn("&lt;script&gt;alert(&#34;remark&#34;)&lt;/script&gt;", page)
+        self.assertNotIn('<script>alert("remark")</script>', page)
+        self.assertIn('colspan="10"', page)
 
     def test_failed_validation_preserves_existing_page(self):
         with tempfile.TemporaryDirectory() as directory:

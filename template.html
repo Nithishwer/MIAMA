@@ -112,7 +112,7 @@
     <h2 id="runs-heading">Run records</h2>
     <p class="view-note">Production times are ns per lambda window. Completed production is the minimum across expected windows. Status and convergence are recorded separately.</p>
     <div class="toolbar">
-      <div class="search"><label for="run-filter">Filter runs</label><input id="run-filter" type="search" placeholder="Search dataset, complex, status or folder…"></div>
+      <div class="search"><label for="run-filter">Filter runs</label><input id="run-filter" type="search" placeholder="Search dataset, complex, status, folder or remark…"></div>
       <span class="subtle" id="run-count" role="status" aria-live="polite"></span>
     </div>
     <div id="exact-filter" class="exact-filter" hidden><span id="exact-filter-label"></span><button id="clear-filters" type="button" class="jump">Clear filters</button></div>
@@ -120,7 +120,7 @@
       <table class="run-table">
         <thead><tr>
           <th scope="col">Details</th>
-          {% for label in ['Dataset', 'Complex', 'Run type', 'Repeat', 'Status', 'Convergence', 'Total production (ns)', 'Completed production (ns)'] %}
+          {% for label in ['Dataset', 'Complex', 'Run type', 'Repeat', 'Status', 'Convergence', 'Total production (ns)', 'Completed production (ns)', 'Remark'] %}
           <th scope="col" aria-sort="none"><button type="button" class="sort" data-column="{{ loop.index }}" data-numeric="{{ 'true' if loop.index in [4, 7, 8] else 'false' }}">{{ label }} <span aria-hidden="true">↕</span></button></th>
           {% endfor %}
         </tr></thead>
@@ -138,9 +138,10 @@
             <td>{{ run.convergence if run.kind != 'vanilla' else 'N/A' }}</td>
             <td class="numeric" data-sort="{{ run.total_production_ns if run.total_production_ns is not none else '' }}">{{ production(run.total_production_ns) if run.kind != 'vanilla' else 'N/A' }}</td>
             <td class="numeric" data-sort="{{ run.completed_production_ns if run.completed_production_ns is not none else '' }}">{{ production(run.completed_production_ns) if run.kind != 'vanilla' else 'N/A' }}</td>
+            <td class="remark">{{ run.remark }}</td>
           </tr>
         {% endfor %}
-          <tr id="run-empty" hidden><td colspan="9" class="empty-state">No runs match.</td></tr>
+          <tr id="run-empty" hidden><td colspan="10" class="empty-state">No runs match.</td></tr>
         </tbody>
       </table>
     </div>

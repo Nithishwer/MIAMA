@@ -5,6 +5,8 @@ from pathlib import Path
 
 import yaml
 
+from utils.production_status import validate_production_files
+
 STATUSES = ("Attention required", "Complete", "Waiting")
 CONVERGENCE_VALUES = ("unknown", "not_converged", "converged")
 RUN_TYPES = (
@@ -41,7 +43,7 @@ class UniqueKeyLoader(yaml.SafeLoader):
         return super().construct_mapping(node, deep=deep)
 
 
-def check_fields(value, required, path, errors):
+def check_fields(value, required, path, errors, optional=()):
     if not isinstance(value, dict):
         errors.append(f"{path}: expected a mapping")
         return False
@@ -49,7 +51,7 @@ def check_fields(value, required, path, errors):
         if field not in value:
             errors.append(f"{path}.{field}: required field is missing")
     for field in value:
-        if field not in required:
+        if field not in required and field not in optional:
             errors.append(f"{path}.{field}: unrecognised field")
     return True
 
@@ -67,10 +69,11 @@ def check_identifier(value, path, errors):
 
 
 def validate_run(run, kind, path, errors):
-    fields = ["folder", "status"]
+    fields = ["folder", "status", "remark"]
     if kind != "vanilla":
         fields += ["convergence", "total_production_ns", "completed_production_ns"]
-    if not check_fields(run, fields, path, errors):
+    optional = ("production_files",) if kind != "vanilla" else ()
+    if not check_fields(run, fields, path, errors, optional=optional):
         return
 
     folder = run.get("folder")
@@ -78,8 +81,15 @@ def validate_run(run, kind, path, errors):
         errors.append(f"{path}.folder: expected a nonempty string or null")
     if "status" in run and run["status"] not in STATUSES:
         errors.append(f"{path}.status: expected one of {', '.join(STATUSES)}")
+    if "remark" in run and not isinstance(run["remark"], str):
+        errors.append(f"{path}.remark: expected a string")
     if kind == "vanilla":
         return
+    if "production_files" in run:
+        errors.extend(
+            f"{path}.{error}"
+            for error in validate_production_files(run["production_files"])
+        )
     if "convergence" in run and run["convergence"] not in CONVERGENCE_VALUES:
         errors.append(
             f"{path}.convergence: expected one of {', '.join(CONVERGENCE_VALUES)}"

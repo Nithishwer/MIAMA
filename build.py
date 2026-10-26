@@ -29,6 +29,7 @@ def make_run(dataset_id, complex_id, kind, repeat, values):
         repeat=repeat,
         folder=values["folder"],
         status=values["status"],
+        remark=values["remark"],
         convergence=values.get("convergence"),
         total_production_ns=values.get("total_production_ns"),
         completed_production_ns=values.get("completed_production_ns"),
