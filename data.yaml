@@ -1,0 +1,1033 @@
+# Initial inventory only: all statuses are unreviewed Waiting placeholders.
+# Convergence and production times must be entered manually.
+# Times are production ns per window; completed = minimum across expected windows.
+datasets:
+  deflorian-set1:
+    label: Deflorian OX2 set 1
+    complexes:
+      OX2_42922:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_42922/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_42922/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_42922/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_42922/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_42922/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_42922/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_43289:
+        repeats:
+          1:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43289/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43289/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43289/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_43367:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43367/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43367/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43367/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43367/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43367/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43367/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_43612:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43612/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43612/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43612/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43612/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43612/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43612/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_43703:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43703/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43703/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43703/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43703/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43703/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43703/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_43796:
+        repeats:
+          1:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43796/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43796/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43796/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_43929:
+        repeats:
+          1:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43929/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43929/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_43929/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_46433:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46433/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46433/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46433/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46433/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46433/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46433/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_46726:
+        repeats:
+          1:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46726/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46726/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46726/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_46831:
+        repeats:
+          1:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46831/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46831/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46831/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_46853:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46853/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46853/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46853/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46853/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46853/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46853/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_46892:
+        repeats:
+          1:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46892/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46892/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46892/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_46905:
+        repeats:
+          1:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46905/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46905/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_46905/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_47311:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47311/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47311/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47311/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47311/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47311/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47311/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_47594:
+        repeats:
+          1:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47594/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47594/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47594/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_47816:
+        repeats:
+          1:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47816/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47816/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47816/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_47821:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47821/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47821/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47821/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47821/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47821/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47821/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_47848:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47848/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47848/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47848/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47848/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47848/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_47848/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_48083:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48083/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48083/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48083/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48083/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48083/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48083/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_48732:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48732/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48732/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48732/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48732/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48732/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48732/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_48845:
+        repeats:
+          1:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48845/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48845/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: null
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48845/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_48951:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48951/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48951/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48951/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48951/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48951/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_48951/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_49599:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49599/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49599/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49599/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49599/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49599/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49599/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_49847:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49847/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49847/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49847/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49847/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49847/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49847/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_49860:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49860/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49860/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49860/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49860/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49860/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_49860/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_51964:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_51964/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_51964/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_51964/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_51964/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_51964/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_51964/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null
+      OX2_52542:
+        repeats:
+          1:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_52542/vanilla_rep_1
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_52542/abfe_van1_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          2:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_52542/vanilla_rep_2
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_52542/abfe_van2_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+          3:
+            vanilla:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_52542/vanilla_rep_3
+              status: Waiting
+            alchemical_complex:
+              folder: /biggin/b211/reub0138/Projects/orexin/deflorian_set_1_j13_v2_na/OX2_52542/abfe_van3_hrex_r1/complex
+              status: Waiting
+              convergence: unknown
+              total_production_ns: null
+              completed_production_ns: null
+        alchemical_ligand:
+          folder: null
+          status: Waiting
+          convergence: unknown
+          total_production_ns: null
+          completed_production_ns: null

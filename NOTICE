@@ -1,0 +1,10 @@
+MIAMA's console styling and browser interactions are adapted from ABFlow's
+H.A.W.T.O.W.N console (abfe/console_assets and abfe/console/runs.py).
+Source: /biggin/b211/reub0138/Projects/orexin/abflow_git/abflow
+The adapted console has been simplified for manual YAML data and rebranded MIAMA.
+The source project's GNU GPL version 3 is retained in LICENSE.
+
+Inter and JetBrains Mono are bundled with their original licence notices in
+assets/Inter-LICENSE.txt and assets/JetBrainsMono-LICENSE.txt. Their notices are
+also embedded in the generated HTML.
+
