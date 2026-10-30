@@ -64,8 +64,9 @@ datasets:
           completed_production_ns: null
 ```
 
-All shown fields except `production_files` are required. Vanilla records have
-only `folder`, `status` and `remark`.
+All shown fields except `production_files` are required for alchemical records.
+Vanilla records require `folder`, `status` and `remark`, and optionally include
+`total_production_ns` and `completed_production_ns`.
 
 | Field | Accepted values |
 | --- | --- |
@@ -74,25 +75,28 @@ only `folder`, `status` and `remark`.
 | `remark` | Free-text note for any run; use `""` when blank |
 | `production_files` | Optional alchemical-only mapping containing `trajectory`, `log` and `mdp` filenames |
 | `convergence` | Exactly `unknown`, `not_converged`, or `converged` |
-| `total_production_ns` | Intended production duration per window from the MDP, in ns; or `null` |
-| `completed_production_ns` | Minimum completed production across all expected lambda windows, in ns; or `null` |
+| `total_production_ns` | Intended production duration from the MDP, in ns; or `null` |
+| `completed_production_ns` | Last logged production time, in ns; or `null` |
 
-Times cover production only, excluding minimisation and equilibration. Enter the
-MDP duration manually (`nsteps × dt / 1000` when `dt` is in ps). A completed time
-of 10 means every expected window has reached at least 10 ns. Zero means no
-production has completed; `null` means it has not been recorded. An extension
-may make completed production exceed the recorded total; this is allowed.
+Times cover production only, excluding minimisation and equilibration. The
+completion scripts calculate the MDP duration as `nsteps × dt / 1000` when `dt`
+is in ps, and completed time as the last logged `Time / 1000`. Alchemical times
+describe only the selected window (default: `coul.00`), rather than the minimum
+across all windows. Zero means no production has completed; `null` means it has
+not been recorded. An extension may make completed production exceed the
+recorded total; this is allowed. Production is assumed to start at time zero.
 
 **Status and convergence are independent fields.** Edit them manually, or use
-the completion checkers below to update run statuses. The builder never
-reads simulation folders, MDP files, trajectories or scheduler state. Folder
-paths need not exist on the machine building the console. Displayed folders are
-selectable text, including paths to remote locations.
+the completion checkers below to update run statuses and production times. The
+builder never reads simulation folders, MDP files, trajectories or scheduler
+state. Folder paths need not exist on the machine building the console.
+Displayed folders are selectable text, including paths to remote locations.
 
 Empty dataset, complex and repeat mappings are supported. Dataset and complex
 display order follows the YAML; repeats are ordered numerically. The Run view
 shows each shared ligand once, with `Shared` instead of a repeat number. Vanilla
-convergence and production fields display `N/A`.
+convergence displays `N/A`; production times display their recorded values, or
+`Unknown` when absent or `null`.
 Every run has a Remark column in the Run view; remarks are searchable and sortable.
 
 The builder rejects malformed YAML, duplicate keys, missing or misspelled fields,
@@ -134,8 +138,12 @@ last step in `prod.log` exactly equals `nsteps` in `prod.mdp`; all other results
 are `incomplete`, with a short reason. Production is assumed to start at step
 zero. The script sets the status to `Complete` only for complete runs. Missing
 and incomplete runs keep their existing status, including an existing `Complete`.
-Other fields are preserved. It can be run from any directory by using its full
-path; rebuild the website separately to display the updated statuses.
+The script also updates `total_production_ns` and `completed_production_ns` from
+`prod.mdp` and `prod.log`, including for incomplete runs and runs without a
+trajectory. If either time cannot be read, it reports the error and preserves
+both recorded times. Unset folders are skipped. Other fields are preserved.
+It can be run from any directory by using its full path; rebuild the website
+separately to display updated statuses and times.
 
 `utils/update_yaml.py` provides `update_yaml(path, document)` for saving changes.
 Before replacing the YAML, it archives an exact copy of the previous file in
@@ -176,11 +184,15 @@ absent trajectory is `missing`. Missing or invalid MDP/log files and step
 mismatches are `incomplete`, with a short reason. Complete runs are set to
 `Complete`, and runs reported as `missing` are set to `Attention required`.
 Invalid filename configuration is also reported as `incomplete`, with a reason.
-Incomplete runs keep their existing status. All other fields, including filename
-configuration, are preserved. Saving uses the same YAML backup helper as the
-vanilla checker. Unchanged data creates no write or backup. Unset ligand paths
-are not discovered automatically. Rebuild the website separately to display
-updated statuses.
+Incomplete runs keep their existing status. Total and completed production times
+are updated from the selected window's configured MDP and log, including for
+incomplete runs and runs without a trajectory. If either time cannot be read,
+the script reports the error and preserves both recorded times. Unset folders
+and invalid filename configurations are skipped. Convergence and all other
+fields, including filename configuration, are preserved. Saving uses the same
+YAML backup helper as the vanilla checker. Unchanged data creates no write or
+backup. Unset ligand paths are not discovered automatically. Rebuild the
+website separately to display updated statuses and times.
 
 ## Development
 

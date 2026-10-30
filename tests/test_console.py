@@ -168,6 +168,22 @@ class ValidationTests(unittest.TestCase):
         run.update(total_production_ns=10, completed_production_ns=20.5)
         self.assertEqual(validate_data(document), [])
 
+    def test_vanilla_production_times_are_optional_and_validated(self):
+        document = example_data()
+        run = complex_record(document)["repeats"][1]["vanilla"]
+        self.assertEqual(validate_data(document), [])
+        run.update(total_production_ns=20, completed_production_ns=12.5)
+        self.assertEqual(validate_data(document), [])
+        for value in (-1, True, "10", float("inf"), float("nan")):
+            with self.subTest(value=value):
+                run["completed_production_ns"] = value
+                self.assertTrue(
+                    any(
+                        ".vanilla.completed_production_ns:" in error
+                        for error in validate_data(document)
+                    )
+                )
+
     def test_reports_multiple_fields_with_paths(self):
         document = example_data()
         run = complex_record(document)["alchemical_ligand"]
@@ -295,6 +311,16 @@ class ValidationTests(unittest.TestCase):
 
 
 class RenderingTests(unittest.TestCase):
+    def test_vanilla_times_render_while_convergence_remains_not_applicable(self):
+        document = example_data()
+        complex_record(document)["repeats"][1]["vanilla"].update(
+            total_production_ns=20, completed_production_ns=12.5
+        )
+        page = render_page(document)
+        self.assertIn('<td class="numeric" data-sort="20">20</td>', page)
+        self.assertIn('<td class="numeric" data-sort="12.5">12.5</td>', page)
+        self.assertEqual(page.count("<td>N/A</td>"), 2)
+
     def test_shared_record_count_and_numeric_repeat_order(self):
         datasets, runs = prepare_views(example_data())
         self.assertEqual(len(runs), 5)
@@ -375,8 +401,9 @@ class RenderingTests(unittest.TestCase):
 
     def test_seeded_deflorian_inventory(self):
         document = load_data(ROOT / "data.yaml")
-        self.assertEqual(list(document["datasets"]), ["deflorian-set1"])
-        datasets, runs = prepare_views(document)
+        datasets, runs = prepare_views(
+            {"datasets": {"deflorian-set1": document["datasets"]["deflorian-set1"]}}
+        )
         self.assertEqual(len(datasets[0]["compounds"]), 27)
         self.assertEqual(len(runs), 189)
         for kind, expected in (

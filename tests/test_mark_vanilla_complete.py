@@ -18,7 +18,7 @@ class VanillaTests(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         self.folder = Path(temporary.name)
         (self.folder / "prod.xtc").touch()
-        (self.folder / "prod.mdp").write_text("nsteps = 100\n")
+        (self.folder / "prod.mdp").write_text("nsteps = 100\ndt = 0.002\n")
         (self.folder / "prod.log").write_text("  Step   Time\n  100  0.20000\n")
 
     def test_exact_step_match_only(self):
@@ -151,6 +151,10 @@ class VanillaTests(unittest.TestCase):
         for run in repeats.values():
             self.assertEqual(run["vanilla"]["remark"], "Keep this manual note")
             self.assertEqual(run["alchemical_complex"], {"status": "Waiting"})
+        self.assertAlmostEqual(repeats[2]["vanilla"]["total_production_ns"], 0.0002)
+        self.assertAlmostEqual(repeats[2]["vanilla"]["completed_production_ns"], 0.0002)
+        for repeat in (1, 3):
+            self.assertNotIn("total_production_ns", repeats[repeat]["vanilla"])
         backups = list((self.folder / "archives").iterdir())
         self.assertEqual(len(backups), 1)
         self.assertEqual(backups[0].read_text(), content)
@@ -184,12 +188,96 @@ class VanillaTests(unittest.TestCase):
                             }
                         }
                     }
+                    if folder:
+                        run = document["datasets"]["example"]["complexes"]["ligand_01"][
+                            "repeats"
+                        ][1]["vanilla"]
+                        run.update(
+                            total_production_ns=0.0002,
+                            completed_production_ns=0.18 / 1000,
+                        )
                     content = yaml.safe_dump(document)
                     source.write_text(content)
                     with redirect_stdout(io.StringIO()):
                         self.assertEqual(main(source), 0)
                     self.assertEqual(source.read_text(), content)
                     self.assertFalse((self.folder / "archives").exists())
+
+    def test_records_zero_partial_and_extended_progress_without_trajectory(self):
+        (self.folder / "prod.xtc").unlink()
+        source = self.folder / "data.yaml"
+        for step in (0, 90, 110):
+            with self.subTest(step=step):
+                (self.folder / "prod.log").write_text(
+                    f"Step Time\n{step} {step * 0.002}\n"
+                )
+                document = {
+                    "datasets": {
+                        "example": {
+                            "complexes": {
+                                "ligand_01": {
+                                    "repeats": {
+                                        1: {
+                                            "vanilla": {
+                                                "folder": str(self.folder),
+                                                "status": "Waiting",
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                source.write_text(yaml.safe_dump(document))
+                with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                    self.assertEqual(main(source), 0)
+                saved = yaml.safe_load(source.read_text())
+                run = saved["datasets"]["example"]["complexes"]["ligand_01"]["repeats"][
+                    1
+                ]["vanilla"]
+                self.assertEqual(run["status"], "Waiting")
+                self.assertAlmostEqual(run["total_production_ns"], 0.0002)
+                self.assertAlmostEqual(
+                    run["completed_production_ns"], step * 0.002 / 1000
+                )
+
+    def test_invalid_times_preserve_recorded_times_and_report_error(self):
+        source = self.folder / "data.yaml"
+        for mdp, log in (
+            ("nsteps = 100\n", "Step Time\n90 0.18\n"),
+            ("nsteps = 100\ndt = 0.002\n", "Step Time\n90 -0.18\n"),
+        ):
+            with self.subTest(mdp=mdp, log=log):
+                (self.folder / "prod.mdp").write_text(mdp)
+                (self.folder / "prod.log").write_text(log)
+                document = {
+                    "datasets": {
+                        "example": {
+                            "complexes": {
+                                "ligand_01": {
+                                    "repeats": {
+                                        1: {
+                                            "vanilla": {
+                                                "folder": str(self.folder),
+                                                "status": "Waiting",
+                                                "total_production_ns": 20,
+                                                "completed_production_ns": 12.5,
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                content = yaml.safe_dump(document)
+                source.write_text(content)
+                errors = io.StringIO()
+                with redirect_stdout(io.StringIO()), redirect_stderr(errors):
+                    self.assertEqual(main(source), 0)
+                self.assertEqual(source.read_text(), content)
+                self.assertIn("Cannot read production times", errors.getvalue())
 
     def test_update_failure_returns_error(self):
         source = self.folder / "data.yaml"

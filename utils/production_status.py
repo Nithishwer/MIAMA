@@ -50,8 +50,8 @@ def read_nsteps(path):
     raise ValueError(f"{path.name} has no nsteps")
 
 
-def read_last_step(path):
-    last_step = None
+def read_last_step_and_time(path):
+    last_record = None
     awaiting_step = False
     with path.open(encoding="utf-8") as stream:
         for line in stream:
@@ -71,10 +71,41 @@ def read_last_step(path):
             except ValueError:
                 continue
             if step >= 0 and math.isfinite(time):
-                last_step = step
-    if last_step is None:
+                last_record = (step, time)
+    if last_record is None:
         raise ValueError(f"{path.name} has no valid step records")
-    return last_step
+    return last_record
+
+
+def read_last_step(path):
+    return read_last_step_and_time(path)[0]
+
+
+def read_production_times(mdp, log):
+    """Return intended and logged production times in ns, assuming a zero start time."""
+    nsteps = read_nsteps(mdp)
+    timestep = None
+    with mdp.open(encoding="utf-8") as stream:
+        for line in stream:
+            key, separator, value = line.split(";", 1)[0].partition("=")
+            if separator and key.strip() == "dt":
+                try:
+                    timestep = float(value.strip())
+                except ValueError:
+                    raise ValueError(f"{mdp} has invalid dt") from None
+                break
+    if timestep is None or not math.isfinite(timestep) or timestep <= 0:
+        raise ValueError(f"{mdp} requires a finite positive dt")
+    _, time = read_last_step_and_time(log)
+    total = nsteps * timestep / 1000
+    if not math.isfinite(total):
+        raise ValueError(f"{mdp} has nonfinite production duration")
+    if time < 0:
+        raise ValueError(f"{log} has negative production time")
+    return {
+        "total_production_ns": total,
+        "completed_production_ns": time / 1000,
+    }
 
 
 def check_production(folder, *, trajectory="prod.xtc", mdp="prod.mdp", log="prod.log"):

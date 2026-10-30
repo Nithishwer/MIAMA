@@ -72,7 +72,11 @@ def validate_run(run, kind, path, errors):
     fields = ["folder", "status", "remark"]
     if kind != "vanilla":
         fields += ["convergence", "total_production_ns", "completed_production_ns"]
-    optional = ("production_files",) if kind != "vanilla" else ()
+    optional = (
+        ("total_production_ns", "completed_production_ns")
+        if kind == "vanilla"
+        else ("production_files",)
+    )
     if not check_fields(run, fields, path, errors, optional=optional):
         return
 
@@ -83,8 +87,6 @@ def validate_run(run, kind, path, errors):
         errors.append(f"{path}.status: expected one of {', '.join(STATUSES)}")
     if "remark" in run and not isinstance(run["remark"], str):
         errors.append(f"{path}.remark: expected a string")
-    if kind == "vanilla":
-        return
     if "production_files" in run:
         errors.extend(
             f"{path}.{error}"

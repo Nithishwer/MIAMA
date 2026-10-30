@@ -39,7 +39,7 @@
       </div>
     </div>
   </header>
-  <p class="notice">Statuses, convergence and production times are entered manually. Unknown values have not been recorded.</p>
+  <p class="notice">Completion scripts update statuses and production times. Convergence is entered manually. Unknown values have not been recorded.</p>
   <noscript><p class="notice">Enable JavaScript to switch views, filter and sort runs.</p></noscript>
 
   <section id="view-datasets" class="view" aria-labelledby="datasets-heading">
@@ -110,7 +110,7 @@
 
   <section id="view-runs" class="view" aria-labelledby="runs-heading" hidden>
     <h2 id="runs-heading">Run records</h2>
-    <p class="view-note">Production times are ns per lambda window. Completed production is the minimum across expected windows. Status and convergence are recorded separately.</p>
+    <p class="view-note">Production times are in ns. Alchemical times describe the window selected when running the completion script (default: coul.00). Status and convergence are recorded separately.</p>
     <div class="toolbar">
       <div class="search"><label for="run-filter">Filter runs</label><input id="run-filter" type="search" placeholder="Search dataset, complex, status, folder or remark…"></div>
       <span class="subtle" id="run-count" role="status" aria-live="polite"></span>
@@ -136,8 +136,8 @@
             <td class="numeric" data-sort="{{ run.repeat if run.repeat is not none else '' }}">{{ run.repeat if run.repeat is not none else 'Shared' }}</td>
             <td>{{ status_badge(run.status) }}</td>
             <td>{{ run.convergence if run.kind != 'vanilla' else 'N/A' }}</td>
-            <td class="numeric" data-sort="{{ run.total_production_ns if run.total_production_ns is not none else '' }}">{{ production(run.total_production_ns) if run.kind != 'vanilla' else 'N/A' }}</td>
-            <td class="numeric" data-sort="{{ run.completed_production_ns if run.completed_production_ns is not none else '' }}">{{ production(run.completed_production_ns) if run.kind != 'vanilla' else 'N/A' }}</td>
+            <td class="numeric" data-sort="{{ run.total_production_ns if run.total_production_ns is not none else '' }}">{{ production(run.total_production_ns) }}</td>
+            <td class="numeric" data-sort="{{ run.completed_production_ns if run.completed_production_ns is not none else '' }}">{{ production(run.completed_production_ns) }}</td>
             <td class="remark">{{ run.remark }}</td>
           </tr>
         {% endfor %}

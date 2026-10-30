@@ -34,8 +34,8 @@ def write_production(folder, window="coul.00", step=100, filenames=None):
             "mdp": f"{stage}.prod.{number}.mdp",
         }
     (production / filenames["trajectory"]).touch()
-    (production / filenames["mdp"]).write_text("nsteps = 100\n")
-    (production / filenames["log"]).write_text(f"Step Time\n{step} 0.2\n")
+    (production / filenames["mdp"]).write_text("nsteps = 100\ndt = 0.002\n")
+    (production / filenames["log"]).write_text(f"Step Time\n{step} {step * 0.002}\n")
     return production
 
 
@@ -267,6 +267,13 @@ class AlchemicalTests(unittest.TestCase):
         compound = expected["datasets"]["first"]["complexes"]["ligand_01"]
         compound["repeats"][3]["alchemical_complex"]["status"] = "Complete"
         compound["alchemical_ligand"]["status"] = "Complete"
+        for repeat, completed in ((2, 0.18 / 1000), (3, 0.0002)):
+            compound["repeats"][repeat]["alchemical_complex"].update(
+                total_production_ns=0.0002, completed_production_ns=completed
+            )
+        compound["alchemical_ligand"].update(
+            total_production_ns=0.0002, completed_production_ns=0.0002
+        )
         expected["datasets"]["second"]["complexes"]["ligand_02"]["alchemical_ligand"][
             "status"
         ] = "Attention required"
@@ -324,6 +331,12 @@ class AlchemicalTests(unittest.TestCase):
                 "alchemical_ligand"
             ]
             self.assertEqual(run["status"], expected_status)
+            self.assertEqual(run["convergence"], "not_converged")
+            self.assertAlmostEqual(run["total_production_ns"], 0.0002)
+            self.assertAlmostEqual(
+                run["completed_production_ns"],
+                0.00018 if window == "vdw.01" else 0.0002,
+            )
             self.assertIn(f"\t{window}\t", output.getvalue())
 
     def test_incomplete_preserves_every_existing_status_without_writes(self):
@@ -351,6 +364,14 @@ class AlchemicalTests(unittest.TestCase):
                         }
                     }
                 }
+                compound = document["datasets"]["example"]["complexes"]["ligand_01"]
+                for run in (
+                    compound["repeats"][1]["alchemical_complex"],
+                    compound["alchemical_ligand"],
+                ):
+                    run.update(
+                        total_production_ns=0.0002, completed_production_ns=0.18 / 1000
+                    )
                 content = yaml.safe_dump(document)
                 source.write_text(content)
                 with redirect_stdout(io.StringIO()):
@@ -432,9 +453,23 @@ class AlchemicalTests(unittest.TestCase):
                         "Attention required"
                     )
                     compound["alchemical_ligand"]["status"] = "Attention required"
+                    if folder == self.run_folder:
+                        for run in (
+                            compound["repeats"][1]["alchemical_complex"],
+                            compound["alchemical_ligand"],
+                        ):
+                            run.update(
+                                total_production_ns=0.0002,
+                                completed_production_ns=0.0002,
+                            )
                     self.assertEqual(yaml.safe_load(source.read_text()), expected)
                     backups = list((case_folder / "archives").glob("*"))
-                    self.assertEqual(len(backups), int(status != "Attention required"))
+                    self.assertEqual(
+                        len(backups),
+                        int(
+                            status != "Attention required" or folder == self.run_folder
+                        ),
+                    )
                     if backups:
                         self.assertEqual(backups[0].read_text(), content)
                     else:

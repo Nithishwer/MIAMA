@@ -1,4 +1,4 @@
-"""Mark complete or missing alchemical runs, backing up any YAML changes."""
+"""Update alchemical completion status and production times, backing up YAML changes."""
 
 import argparse
 import re
@@ -8,10 +8,18 @@ from pathlib import Path
 import yaml
 
 if __package__:
-    from .production_status import check_production, validate_production_files
+    from .production_status import (
+        check_production,
+        read_production_times,
+        validate_production_files,
+    )
     from .update_yaml import update_yaml
 else:
-    from production_status import check_production, validate_production_files
+    from production_status import (
+        check_production,
+        read_production_times,
+        validate_production_files,
+    )
     from update_yaml import update_yaml
 
 DATA_PATH = Path(__file__).resolve().parents[1] / "data.yaml"
@@ -75,6 +83,22 @@ def main(data_path=DATA_PATH, window=DEFAULT_WINDOW):
                     run["status"] = "Complete"
                 elif status == "missing":
                     run["status"] = "Attention required"
+                files = run.get("production_files", DEFAULT_PRODUCTION_FILES)
+                if folder and not validate_production_files(files):
+                    stage, number = window.split(".")
+                    production = Path(folder) / window / "prod"
+                    mdp = files["mdp"].format(stage=stage, number=number)
+                    log = files["log"].format(stage=stage, number=number)
+                    try:
+                        run.update(
+                            read_production_times(production / mdp, production / log)
+                        )
+                    except (OSError, UnicodeError, ValueError) as error:
+                        print(
+                            f"{dataset_id}\t{complex_id}\t{repeat}\t{kind}: "
+                            f"Cannot read production times: {error}",
+                            file=sys.stderr,
+                        )
                 result = f"{status} ({reason})" if reason else status
                 print(
                     f"{dataset_id}\t{complex_id}\t{repeat}\t{kind}\t"
