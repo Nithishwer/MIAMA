@@ -9,6 +9,7 @@ from utils.production_status import validate_production_files
 
 STATUSES = ("Attention required", "Complete", "Waiting")
 CONVERGENCE_VALUES = ("unknown", "not_converged", "converged")
+ANALYSIS_STATUSES = ("Missing", "Incomplete", "Complete")
 RUN_TYPES = (
     ("vanilla", "Vanilla"),
     ("alchemical_complex", "Alchemical complex"),
@@ -75,7 +76,7 @@ def validate_run(run, kind, path, errors):
     optional = (
         ("total_production_ns", "completed_production_ns")
         if kind == "vanilla"
-        else ("production_files",)
+        else ("production_files", "analysis_status", "analysis_remark")
     )
     if not check_fields(run, fields, path, errors, optional=optional):
         return
@@ -87,6 +88,12 @@ def validate_run(run, kind, path, errors):
         errors.append(f"{path}.status: expected one of {', '.join(STATUSES)}")
     if "remark" in run and not isinstance(run["remark"], str):
         errors.append(f"{path}.remark: expected a string")
+    if "analysis_status" in run and run["analysis_status"] not in ANALYSIS_STATUSES:
+        errors.append(
+            f"{path}.analysis_status: expected one of {', '.join(ANALYSIS_STATUSES)}"
+        )
+    if "analysis_remark" in run and not isinstance(run["analysis_remark"], str):
+        errors.append(f"{path}.analysis_remark: expected a string")
     if "production_files" in run:
         errors.extend(
             f"{path}.{error}"

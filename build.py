@@ -18,6 +18,11 @@ STATUS_COLORS = {
     "Complete": "#0ad2ff",
     "Waiting": "#ffd166",
 }
+ANALYSIS_COLORS = {
+    "Missing": "#969da7",
+    "Incomplete": "#ffd166",
+    "Complete": "#0ad2ff",
+}
 
 
 def make_run(dataset_id, complex_id, kind, repeat, values):
@@ -30,6 +35,13 @@ def make_run(dataset_id, complex_id, kind, repeat, values):
         folder=values["folder"],
         status=values["status"],
         remark=values["remark"],
+        analysis_status=values.get("analysis_status", "Missing"),
+        analysis_remark=values.get(
+            "analysis_remark",
+            "Analysis status not checked" if "analysis_status" not in values else "",
+        )
+        if kind != "vanilla"
+        else "",
         convergence=values.get("convergence"),
         total_production_ns=values.get("total_production_ns"),
         completed_production_ns=values.get("completed_production_ns"),
@@ -110,6 +122,7 @@ def render_page(document):
         run_types=RUN_TYPES,
         statuses=STATUSES,
         status_colors=STATUS_COLORS,
+        analysis_colors=ANALYSIS_COLORS,
         generated_at=datetime.now(timezone.utc).strftime("%d %b %Y · %H:%M UTC"),
         css="\n".join(font_faces) + "\n" + (assets / "console.css").read_text(),
         javascript=(assets / "console.js").read_text(),

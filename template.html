@@ -110,7 +110,7 @@
 
   <section id="view-runs" class="view" aria-labelledby="runs-heading" hidden>
     <h2 id="runs-heading">Run records</h2>
-    <p class="view-note">Production times are in ns. Alchemical times describe the window selected when running the completion script (default: coul.00). Status and convergence are recorded separately.</p>
+    <p class="view-note">Production times are in ns. Alchemical times describe the window selected when running the completion script (default: coul.00). Analysis status describes each component's coverage of available data and is refreshed separately from production status and convergence.</p>
     <div class="toolbar">
       <div class="search"><label for="run-filter">Filter runs</label><input id="run-filter" type="search" placeholder="Search dataset, complex, status, folder or remark…"></div>
       <span class="subtle" id="run-count" role="status" aria-live="polite"></span>
@@ -120,8 +120,8 @@
       <table class="run-table">
         <thead><tr>
           <th scope="col">Details</th>
-          {% for label in ['Dataset', 'Complex', 'Run type', 'Repeat', 'Status', 'Convergence', 'Total production (ns)', 'Completed production (ns)', 'Remark'] %}
-          <th scope="col" aria-sort="none"><button type="button" class="sort" data-column="{{ loop.index }}" data-numeric="{{ 'true' if loop.index in [4, 7, 8] else 'false' }}">{{ label }} <span aria-hidden="true">↕</span></button></th>
+          {% for label in ['Dataset', 'Complex', 'Run type', 'Repeat', 'Status', 'Analysis status', 'Convergence', 'Total production (ns)', 'Completed production (ns)', 'Remark'] %}
+          <th scope="col" aria-sort="none"><button type="button" class="sort" data-column="{{ loop.index }}" data-numeric="{{ 'true' if loop.index in [4, 8, 9] else 'false' }}">{{ label }} <span aria-hidden="true">↕</span></button></th>
           {% endfor %}
         </tr></thead>
         <tbody>
@@ -135,13 +135,14 @@
             <td class="edge">{{ run.dataset }}</td><td>{{ run.complex }}</td><td class="type {{ run.kind }}">{{ run.kind_label }}</td>
             <td class="numeric" data-sort="{{ run.repeat if run.repeat is not none else '' }}">{{ run.repeat if run.repeat is not none else 'Shared' }}</td>
             <td>{{ status_badge(run.status) }}</td>
+            <td>{% if run.kind == 'vanilla' %}N/A{% else %}<span class="status" style="--status-color:{{ analysis_colors[run.analysis_status] }}"><i class="dot" aria-hidden="true"></i>{{ run.analysis_status }}</span>{% endif %}</td>
             <td>{{ run.convergence if run.kind != 'vanilla' else 'N/A' }}</td>
             <td class="numeric" data-sort="{{ run.total_production_ns if run.total_production_ns is not none else '' }}">{{ production(run.total_production_ns) }}</td>
             <td class="numeric" data-sort="{{ run.completed_production_ns if run.completed_production_ns is not none else '' }}">{{ production(run.completed_production_ns) }}</td>
-            <td class="remark">{{ run.remark }}</td>
+            <td class="remark">{{ run.remark }}{% if run.analysis_remark %}{% if run.remark %}{{ '\n' }}{% endif %}{{ run.analysis_remark }}{% endif %}</td>
           </tr>
         {% endfor %}
-          <tr id="run-empty" hidden><td colspan="10" class="empty-state">No runs match.</td></tr>
+          <tr id="run-empty" hidden><td colspan="11" class="empty-state">No runs match.</td></tr>
         </tbody>
       </table>
     </div>

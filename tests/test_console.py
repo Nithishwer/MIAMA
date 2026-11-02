@@ -51,6 +51,32 @@ def complex_record(document):
 
 
 class ValidationTests(unittest.TestCase):
+    def test_optional_analysis_fields_are_validated_for_alchemical_runs(self):
+        document = example_data()
+        run = complex_record(document)["alchemical_ligand"]
+        for status in ("Missing", "Incomplete", "Complete"):
+            run.update(analysis_status=status, analysis_remark="Data not verified")
+            self.assertEqual(validate_data(document), [])
+        for status in (None, True, "Unknown", "complete", []):
+            run["analysis_status"] = status
+            self.assertTrue(
+                any(".analysis_status:" in error for error in validate_data(document))
+            )
+        run["analysis_status"] = "Complete"
+        run["analysis_remark"] = None
+        self.assertTrue(
+            any(".analysis_remark:" in error for error in validate_data(document))
+        )
+        vanilla = complex_record(document)["repeats"][1]["vanilla"]
+        vanilla.update(analysis_status="Complete", analysis_remark="note")
+        errors = validate_data(document)
+        self.assertTrue(
+            any(".vanilla.analysis_status: unrecognised" in error for error in errors)
+        )
+        self.assertTrue(
+            any(".vanilla.analysis_remark: unrecognised" in error for error in errors)
+        )
+
     def test_alchemical_production_files_are_optional_and_preserved(self):
         document = example_data()
         original_views = prepare_views(document)
@@ -319,7 +345,28 @@ class RenderingTests(unittest.TestCase):
         page = render_page(document)
         self.assertIn('<td class="numeric" data-sort="20">20</td>', page)
         self.assertIn('<td class="numeric" data-sort="12.5">12.5</td>', page)
-        self.assertEqual(page.count("<td>N/A</td>"), 2)
+        self.assertEqual(page.count("<td>N/A</td>"), 4)
+
+    def test_analysis_column_defaults_and_escaped_remarks(self):
+        document = example_data()
+        compound = complex_record(document)
+        compound["repeats"][1]["alchemical_complex"].update(
+            analysis_status="Incomplete", analysis_remark="vdw.20 has more samples"
+        )
+        compound["alchemical_ligand"].update(
+            remark="Manual note",
+            analysis_status="Complete",
+            analysis_remark='Data not verified: <script>alert("note")</script>',
+        )
+        page = render_page(document)
+        self.assertIn('data-column="6" data-numeric="false">Analysis status', page)
+        self.assertIn('data-column="8" data-numeric="true">Total production', page)
+        self.assertIn('data-column="9" data-numeric="true">Completed production', page)
+        self.assertIn("Analysis status not checked", page)
+        self.assertIn("vdw.20 has more samples", page)
+        self.assertIn("Manual note\nData not verified:", page)
+        self.assertIn("&lt;script&gt;alert(&#34;note&#34;)&lt;/script&gt;", page)
+        self.assertNotIn('<script>alert("note")</script>', page)
 
     def test_shared_record_count_and_numeric_repeat_order(self):
         datasets, runs = prepare_views(example_data())
@@ -361,13 +408,15 @@ class RenderingTests(unittest.TestCase):
             {"", "Vanilla note", "Complex note", '<script>alert("remark")</script>'},
         )
         page = render_page(document)
-        self.assertIn('data-column="9" data-numeric="false">Remark', page)
+        self.assertIn('data-column="10" data-numeric="false">Remark', page)
         self.assertEqual(page.count('<td class="remark">'), 5)
         self.assertIn('<td class="remark">Vanilla note</td>', page)
-        self.assertIn('<td class="remark">Complex note</td>', page)
+        self.assertIn(
+            '<td class="remark">Complex note\nAnalysis status not checked</td>', page
+        )
         self.assertIn("&lt;script&gt;alert(&#34;remark&#34;)&lt;/script&gt;", page)
         self.assertNotIn('<script>alert("remark")</script>', page)
-        self.assertIn('colspan="10"', page)
+        self.assertIn('colspan="11"', page)
 
     def test_failed_validation_preserves_existing_page(self):
         with tempfile.TemporaryDirectory() as directory:
