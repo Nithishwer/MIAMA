@@ -251,5 +251,5 @@ def inspect_analysis(folder, component):
             unverified.append(f"{window}: {error}")
     if unverified:
         # Keep the table readable; the first reason is enough to explain uncertainty.
-        return "Complete", "Data not verified: " + unverified[0]
+        return "Incomplete", "Data not verified: " + unverified[0]
     return "Complete", ""

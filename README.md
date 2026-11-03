@@ -223,12 +223,12 @@ exclusive. Paths come from `data.yaml`; relative paths are interpreted relative
 to that file. The website builder never inspects simulation folders.
 
 `Missing` means no component analysis outputs exist. `Incomplete` means outputs
-are partial/invalid, or retained inputs have an earlier final timestamp than the
-currently available inputs in any window. The timestamp check reads only the last
+are partial/invalid, coverage cannot be verified, or retained inputs have an
+earlier final timestamp than the currently available inputs in any window. The timestamp check reads only the last
 10 lines of each current and retained input file, ignoring comments and incomplete
 or invalid trailing records. `Complete` means valid summary and convergence results
 reach the available final timestamps. Valid outputs
-whose coverage cannot be checked are also `Complete`, with a `Data not verified`
+whose coverage cannot be checked are `Incomplete`, with a `Data not verified`
 remark explaining why. This includes missing retained input copies. Proven
 additional data takes precedence over uncertainty in another window.
 
@@ -261,8 +261,9 @@ python3 -m pip install -r requirements-analysis.txt
 Preview, status refresh and website building do not import those dependencies.
 `--run` schedules up to **four component analyses in parallel**, with one internal
 alchemlyb worker per calculation. Each shared ligand is analysed once. Missing
-and Incomplete components are selected; Complete components, including unverified
-ones, are skipped. Production need not have finished, and there is no 18 ns cutoff.
+and Incomplete components, including unverified analyses, are selected; only
+verified Complete components are skipped. Production need not have finished,
+and there is no 18 ns cutoff.
 Insufficient usable samples are reported as a calculation failure.
 
 The alchemlyb settings match the reference scripts: GROMACS, 298 K, kcal/mol,

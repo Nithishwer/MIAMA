@@ -127,11 +127,11 @@ class CoverageTests(unittest.TestCase):
         )
         self.assertEqual(inspect_analysis(self.folder, "complex"), ("Complete", ""))
 
-    def test_unavailable_evidence_is_complete_with_remark(self):
+    def test_unavailable_evidence_is_incomplete_with_remark(self):
         directory = make_analysis(self.folder, "complex")
         (directory / "dhdl.rest.00.xvg").unlink()
         status, remark = inspect_analysis(self.folder, "complex")
-        self.assertEqual(status, "Complete")
+        self.assertEqual(status, "Incomplete")
         self.assertIn("Data not verified", remark)
         self.assertIn("rest.00", remark)
 
@@ -147,10 +147,12 @@ class CoverageTests(unittest.TestCase):
         copied = directory / "dhdl.rest.00.xvg"
         future = time.time_ns() + 1_000_000_000
         os.utime(copied, ns=(future, future))
-        self.assertIn("newer than results", inspect_analysis(self.folder, "complex")[1])
+        status, remark = inspect_analysis(self.folder, "complex")
+        self.assertEqual(status, "Incomplete")
+        self.assertIn("newer than results", remark)
         shutil.rmtree(self.folder)
         status, remark = inspect_analysis(self.folder, "complex")
-        self.assertEqual(status, "Complete")
+        self.assertEqual(status, "Incomplete")
         self.assertIn("Data not verified", remark)
 
     def test_missing_and_unexpected_windows_block_execution(self):
@@ -505,6 +507,23 @@ class CommandTests(unittest.TestCase):
                 self.assertRaises(SystemExit),
             ):
                 runner.main(arguments, self.data_path)
+
+    def test_refresh_changes_unverified_complete_to_incomplete(self):
+        self.prepare_components()
+        record = self.compound["repeats"][1]["alchemical_complex"]
+        record.update(analysis_status="Complete", remark="Manual note")
+        self.save()
+        directory = analysis_folder(Path(record["folder"]), "complex")
+        (directory / "dhdl.rest.00.xvg").unlink()
+        self.assertIn("Would analyse", self.command()[1])
+        self.assertEqual(self.command("--update-status")[0], 0)
+        document = load_data(self.data_path)
+        updated = document["datasets"]["example"]["complexes"]["ligand_01"]["repeats"][
+            1
+        ]["alchemical_complex"]
+        self.assertEqual(updated["analysis_status"], "Incomplete")
+        self.assertIn("Data not verified", updated["analysis_remark"])
+        self.assertEqual(updated["remark"], "Manual note")
 
     def test_compilation_only_and_updates_when_shared_summary_changes(self):
         self.prepare_components()
