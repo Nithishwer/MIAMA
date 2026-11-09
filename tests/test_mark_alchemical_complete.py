@@ -9,11 +9,17 @@ import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from copy import deepcopy
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 import yaml
 
-from utils.mark_alchemical_complete import check_alchemical, main, parse_window
+from utils.mark_alchemical_complete import (
+    UNSET_PRODUCTION_FILES,
+    check_alchemical,
+    main,
+    parse_window,
+    read_production_times,
+)
 
 SCRIPT = Path(__file__).resolve().parents[1] / "utils" / "mark_alchemical_complete.py"
 LIGAND_FILES = {
@@ -482,6 +488,100 @@ class AlchemicalTests(unittest.TestCase):
                         list((case_folder / "archives").glob("*")), backups
                     )
 
+    def test_dataset_filter_only_checks_and_updates_selected_dataset(self):
+        for window in ("coul.00", "vdw.01"):
+            with self.subTest(window=window):
+                write_production(self.run_folder, window)
+                document = {
+                    "datasets": {
+                        dataset_id: {
+                            "complexes": {
+                                "ligand_01": {
+                                    "repeats": {
+                                        1: {"alchemical_complex": make_run(folder)}
+                                    },
+                                    "alchemical_ligand": make_run(folder),
+                                }
+                            }
+                        }
+                        for dataset_id, folder in (
+                            ("other", self.folder / "other"),
+                            ("selected", self.run_folder),
+                        )
+                    }
+                }
+                source = self.folder / "data.yaml"
+                source.write_text(yaml.safe_dump(document))
+                output = io.StringIO()
+                with (
+                    patch(
+                        "utils.mark_alchemical_complete.check_alchemical",
+                        wraps=check_alchemical,
+                    ) as check,
+                    patch(
+                        "utils.mark_alchemical_complete.read_production_times",
+                        wraps=read_production_times,
+                    ) as read_times,
+                    redirect_stdout(output),
+                    redirect_stderr(io.StringIO()),
+                ):
+                    self.assertEqual(main(source, window, dataset="selected"), 0)
+                self.assertEqual(
+                    check.call_args_list,
+                    [call(str(self.run_folder), window, UNSET_PRODUCTION_FILES)] * 2,
+                )
+                stage, number = window.split(".")
+                production = self.run_folder / window / "prod"
+                self.assertEqual(
+                    read_times.call_args_list,
+                    [
+                        call(
+                            production / f"{stage}.prod.{number}.mdp",
+                            production / "md.log",
+                        )
+                    ]
+                    * 2,
+                )
+                lines = output.getvalue().splitlines()
+                self.assertEqual(len(lines), 2)
+                self.assertTrue(all(line.startswith("selected\t") for line in lines))
+                saved = yaml.safe_load(source.read_text())
+                self.assertEqual(
+                    saved["datasets"]["other"], document["datasets"]["other"]
+                )
+                compound = saved["datasets"]["selected"]["complexes"]["ligand_01"]
+                for run in (
+                    compound["repeats"][1]["alchemical_complex"],
+                    compound["alchemical_ligand"],
+                ):
+                    self.assertEqual(run["status"], "Complete")
+                    self.assertAlmostEqual(run["total_production_ns"], 0.0002)
+                    self.assertAlmostEqual(run["completed_production_ns"], 0.0002)
+
+    def test_unknown_dataset_fails_without_checks_or_updates(self):
+        source = self.folder / "data.yaml"
+        content = "datasets:\n  example:\n    complexes: {}\n"
+        source.write_text(content)
+        errors = io.StringIO()
+        output = io.StringIO()
+        with (
+            patch("utils.mark_alchemical_complete.check_alchemical") as check,
+            patch("utils.mark_alchemical_complete.read_production_times") as read_times,
+            patch("utils.mark_alchemical_complete.update_yaml") as save,
+            redirect_stdout(output),
+            redirect_stderr(errors),
+        ):
+            self.assertEqual(main(source, dataset="missing"), 1)
+        check.assert_not_called()
+        read_times.assert_not_called()
+        save.assert_not_called()
+        self.assertEqual(output.getvalue(), "")
+        self.assertIn(
+            "Unknown dataset 'missing'; choose from: example", errors.getvalue()
+        )
+        self.assertEqual(source.read_text(), content)
+        self.assertFalse((self.folder / "archives").exists())
+
     def test_load_and_save_failures_return_errors(self):
         source = self.folder / "data.yaml"
         for content in (None, "datasets: [\n"):
@@ -542,6 +642,8 @@ class AlchemicalTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("--window", result.stdout)
+        self.assertIn("--dataset", result.stdout)
+        self.assertIn("-d DATASET", result.stdout)
         self.assertIn("coul.00", result.stdout)
 
 

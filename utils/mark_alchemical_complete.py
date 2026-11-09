@@ -57,7 +57,7 @@ def check_alchemical(
     return check_production(Path(folder) / window / "prod", **filenames)
 
 
-def main(data_path=DATA_PATH, window=DEFAULT_WINDOW):
+def main(data_path=DATA_PATH, window=DEFAULT_WINDOW, dataset=None):
     try:
         with Path(data_path).open(encoding="utf-8") as stream:
             document = yaml.safe_load(stream)
@@ -65,8 +65,18 @@ def main(data_path=DATA_PATH, window=DEFAULT_WINDOW):
         print(f"Cannot load {data_path}: {error}", file=sys.stderr)
         return 1
 
-    for dataset_id, dataset in document["datasets"].items():
-        for complex_id, compound in dataset["complexes"].items():
+    datasets = document["datasets"]
+    if dataset is not None:
+        if dataset not in datasets:
+            print(
+                f"Unknown dataset {dataset!r}; choose from: {', '.join(datasets)}",
+                file=sys.stderr,
+            )
+            return 1
+        datasets = {dataset: datasets[dataset]}
+
+    for dataset_id, dataset_data in datasets.items():
+        for complex_id, compound in dataset_data["complexes"].items():
             entries = [
                 (repeat, "alchemical_complex", runs["alchemical_complex"])
                 for repeat, runs in sorted(compound["repeats"].items())
@@ -116,6 +126,7 @@ def main(data_path=DATA_PATH, window=DEFAULT_WINDOW):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("-d", "--dataset", help="dataset ID; defaults to all datasets")
     parser.add_argument(
         "--window",
         type=parse_window,
@@ -123,4 +134,4 @@ if __name__ == "__main__":
         help="window to check for every run (default: %(default)s)",
     )
     args = parser.parse_args()
-    raise SystemExit(main(window=args.window))
+    raise SystemExit(main(window=args.window, dataset=args.dataset))

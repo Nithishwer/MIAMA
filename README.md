@@ -158,7 +158,12 @@ Changed files are serialized using PyYAML, which does not preserve YAML comments
 ```bash
 python3 utils/mark_alchemical_complete.py
 python3 utils/mark_alchemical_complete.py --window vdw.00
+python3 utils/mark_alchemical_complete.py --dataset deflorian-set1
 ```
+
+Use `-d` or `--dataset` to check and update only that dataset, skipping production
+file reads for all others. Omit it to check all datasets. An unknown dataset ID
+exits with an error. Dataset selection can be combined with `--window`.
 
 The script checks each alchemical complex repeat and each shared ligand once.
 It uses only the selected window, defaulting to `coul.00`; `--window` accepts
