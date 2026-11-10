@@ -1,2 +1,3 @@
 -r requirements.txt
 alchemlyb>=2.5,<3
+pymbar @ git+https://github.com/choderalab/pymbar@4.2.0

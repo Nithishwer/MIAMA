@@ -48,7 +48,7 @@ datasets:
                 mdp: "{stage}.prod.{number}.mdp"
               status: Waiting
               remark: "Review production before extending"
-              convergence: not_converged
+              convergence: unconverged
               total_production_ns: 20
               completed_production_ns: 12.5
         alchemical_ligand:
@@ -74,11 +74,12 @@ Vanilla records require `folder`, `status` and `remark`, and optionally include
 | `status` | Exactly `Attention required`, `Complete`, or `Waiting` |
 | `remark` | Free-text note for any run; use `""` when blank |
 | `production_files` | Optional alchemical-only mapping containing `trajectory`, `log` and `mdp` filenames |
-| `convergence` | Exactly `unknown`, `not_converged`, or `converged` |
+| `convergence` | Exactly `unknown`, `unconverged`, or `converged` |
 | `total_production_ns` | Intended production duration from the MDP, in ns; or `null` |
 | `completed_production_ns` | Last logged production time, in ns; or `null` |
 | `analysis_status` | Optional alchemical-only value: `Missing`, `Incomplete` or `Complete` |
 | `analysis_remark` | Optional alchemical-only explanation, displayed alongside the manual remark |
+| `total_analysed_ps` | Optional alchemical-only final timestamp used in analysis, in ps |
 
 Times cover production only, excluding minimisation and equilibration. The
 completion scripts calculate the MDP duration as `nsteps × dt / 1000` when `dt`
@@ -205,96 +206,175 @@ website separately to display updated statuses and times.
 
 The Runs table has a separate **Analysis status** column. Complex rows describe
 complex analysis; the shared ligand row describes ligand analysis. Vanilla rows
-show `N/A`. Analysis status does not change production status or convergence.
+show `N/A`. Analysis status describes coverage independently of convergence;
+refreshing analysis updates both fields without changing production status.
 Older records without analysis fields display `Missing`, with remark
 `Analysis status not checked`, until explicitly refreshed.
 
 ```bash
-# Preview statuses and proposed actions without changing any files:
-python3 utils/analyse_missing.py --dataset deflorian-set1
+# Refresh statuses and recover analysis timestamps from retained copies:
+python3 utils/refresh_analysis_status.py --dataset deflorian-set1
 
-# Update only the recorded analysis statuses and remarks:
-python3 utils/analyse_missing.py --dataset deflorian-set1 --update-status
+# Preview matching analyses without changing any files:
+python3 utils/run_analysis.py --dataset deflorian-set1 --analysis-status Incomplete --dry-run
 
-# Run missing/outdated analyses, compile results and save refreshed statuses:
-python3 utils/analyse_missing.py --dataset deflorian-set1 --run
+# Run matching analyses, compile results and save refreshed statuses:
+python3 utils/run_analysis.py --dataset deflorian-set1 --analysis-status Incomplete --threads 8
 
 # Rebuild the website to display recorded changes:
 python3 build.py
 ```
 
-Omit `--dataset` to select all datasets. `--run` and `--update-status` are mutually
-exclusive. Paths come from `data.yaml`; relative paths are interpreted relative
-to that file. The website builder never inspects simulation folders.
+`refresh_analysis_status.py` checks all datasets when `--dataset` is omitted.
+It inspects and saves analysis fields without running calculations, compiling
+results or deleting retained inputs.
+
+Both status refresh and analysis execution assign `convergence` from each complex
+or shared ligand's `ABFE_convergence.csv`. The unique `data_fraction = 0.5` row
+compares MBAR estimates from the first and last halves of the analysed data.
+An absolute difference between `Forward` and `Backward` strictly below
+0.5 kcal/mol is `converged`; a difference at or above 0.5 is `unconverged`.
+Missing, unreadable or invalid convergence results, including a missing or
+duplicate half-data row, reset the label to `unknown`. Saved convergence is
+assessed even when the summary is unavailable or newer simulation data makes
+analysis status `Incomplete`; it describes the saved analysis, not current
+coverage. Refresh replaces any previous convergence label.
+
+`run_analysis.py` requires both `--dataset` and `--analysis-status`. Status choices
+are exactly `Missing`, `Incomplete` and `Complete`. Selection uses the status saved
+in `data.yaml`, with absent statuses counted as `Missing`; refresh first when you
+need current statuses. By default both legs are eligible. Use `--leg ligand`
+for shared solvent legs or `--leg complex` for complex repeats. This filter also
+applies to `--dry-run`. Every matching component is analysed, including verified
+Complete components. The runner executes immediately unless `--dry-run` is set.
+An empty selection exits successfully without writing files. Dry runs print a
+single table headed `Runs to be analysed:`, with dataset, compound, component,
+repeat, saved analysis status, total and finished production times in ns, and
+input readiness. Unknown times display `Unknown`; shared ligands use `Shared`.
+Blocked inputs return a nonzero exit code. Preview does not compile results or
+change files; use the refresh script to inspect current analysis statuses.
+
+Paths come from `data.yaml`; relative paths are interpreted relative to that file.
+The website builder never inspects simulation folders.
+
+Each alchemical complex repeat and shared ligand can record one analysis time:
+
+```yaml
+analysis_status: Complete
+analysis_remark: ""
+total_analysed_ps: 20000.0
+```
+
+`total_analysed_ps` is the final simulation timestamp included across all selected
+windows and stages, before equilibration removal and decorrelation. Zero is valid;
+an absent or null value means unknown. Strings and booleans are rejected, and
+vanilla records cannot use this field.
 
 `Missing` means no component analysis outputs exist. `Incomplete` means outputs
-are partial/invalid, coverage cannot be verified, or retained inputs have an
-earlier final timestamp than the currently available inputs in any window. The timestamp check reads only the last
-10 lines of each current and retained input file, ignoring comments and incomplete
-or invalid trailing records. `Complete` means valid summary and convergence results
-reach the available final timestamps. Valid outputs
-whose coverage cannot be checked are `Incomplete`, with a `Data not verified`
-remark explaining why. This includes missing retained input copies. Proven
-additional data takes precedence over uncertainty in another window.
+are partial/invalid, coverage cannot be verified, or current window endpoints do
+not match the analysed time. `Complete` requires valid summary and convergence
+results and every selected current window ending at `total_analysed_ps`.
+Unknown coverage has a `Data not verified` remark. The timestamp check reads only
+the last 10 lines of each input, ignoring comments and incomplete or invalid
+trailing records. It never infers the analysed time from current inputs alone.
+
+All selected windows must end at the same time. Different endpoints identify the
+windows in an error, preserve previous results and recorded analysis time, and
+return a nonzero exit code in every mode. Neither script trims inputs or chooses
+the minimum endpoint. Independent components continue processing.
 
 Inputs are `<folder>/<window>/prod/dhdl.xvg`; outputs are in the sibling
 `analysis/complex` or `analysis/ligand` folder. Existing analysis symlinks are
-followed. Coverage checks use retained `dhdl.<window>.xvg` copies, not the selected
-production window in the completion scripts. Expected complex windows are
-`rest.00`–`rest.10`, `coul.00`–`coul.09` and `vdw.00`–`vdw.20`; ligand windows are
+followed. Coverage checks compare current input endpoints with the saved analysis
+time, independently of the production window selected by completion scripts.
+Expected complex windows are `rest.00`–`rest.10`, `coul.00`–`coul.09` and
+`vdw.00`–`vdw.20`; ligand windows are
 `coul.00`–`coul.10` and `vdw.00`–`vdw.20`. Missing inputs and unexpected layouts
 block calculation rather than silently omitting windows. Complex `rest.11` and
 `coul.10` folders are allowed when their XVG lambda coordinates match `coul.00`
 and `vdw.00`, respectively. Those duplicate boundary states are omitted, matching
 the reference script's input selection. Other extra windows still block analysis.
-Unfinished trailing input records are ignored. Equilibration removal and decorrelation are intentional
-analysis filtering, not missing coverage.
+Unfinished trailing input records are ignored. Equilibration removal and
+decorrelation are intentional analysis filtering, not missing coverage.
 
-The script prints `Checking` progress messages before inspecting each component.
+Status refresh and analysis execution print `Checking` before each component.
 Coverage checks seek directly to the end of each input and compare the final valid
 timestamps from its last 10 lines. They do not count samples or detect differences
 earlier in the files, including extra samples within the same time range.
-Preview/status checks are serial, while `--run` executes up to four calculations
-concurrently. Worker input snapshots retain full numeric validation before calculation.
+Component analyses run one at a time. `--threads` sets alchemlyb's `n_jobs` for
+reading and preprocessing; its default of `-1` uses all available CPUs. Use a
+positive integer to limit those workers. Estimation and convergence retain their
+existing settings because those steps do not support `n_jobs`. Input snapshots
+retain full numeric validation before calculation.
 
-Running analysis requires an environment with the optional dependencies:
+Install the analysis dependencies in your environment before running calculations.
 
 ```bash
 python3 -m pip install -r requirements-analysis.txt
 ```
 
+PyMBAR uses the official `4.2.0` GitHub release because PyPI still provides
+`4.0.3`, which has a subsampling index error fixed in
+[PyMBAR #558](https://github.com/choderalab/pymbar/pull/558).
+`requirements-analysis.txt` selects this release.
+
 Preview, status refresh and website building do not import those dependencies.
-`--run` schedules up to **four component analyses in parallel**, with one internal
-alchemlyb worker per calculation. Each shared ligand is analysed once. Missing
-and Incomplete components, including unverified analyses, are selected; only
-verified Complete components are skipped. Production need not have finished,
+Shared output folders are analysed once per invocation. Only components matching
+the dataset, saved analysis status and optional leg filters are selected; inspecting a different
+live status does not change the selection. Production need not have finished,
 and there is no 18 ns cutoff.
 Insufficient usable samples are reported as a calculation failure.
 
 The alchemlyb settings match the reference scripts: GROMACS, 298 K, kcal/mol,
 MBAR/BAR/TI, `skiptime=10` (ps), `uncorr="dhdl"`, threshold 50, 50 bootstraps,
-10 forward/reverse fractions, overlap and breakdown plots, and `n_jobs=1`.
+10 forward/reverse fractions, and overlap and breakdown plots.
 The script uses the estimator API to apply 50 MBAR bootstraps to both the summary
 and convergence estimates: alchemlyb's automatic `run()` ignores that keyword.
 This can change MBAR error estimates compared with the older scripts.
 JAX is restricted to CPU. Each calculation uses fresh, frozen input copies in a
 separate temporary directory. Previous results are retained if analysis or output
-validation fails. Successful results replace the component directory and retain
-the input copies used. If production advances during analysis, the refreshed
-status is Incomplete; the script does not repeatedly rerun it in the same command.
+validation fails, including when the frozen windows have unequal endpoints.
+Successful results replace the component directory and return their common
+endpoint. The runner saves `total_analysed_ps` and refreshed statuses through the
+YAML backup helper before deleting only that calculation's input copies.
+Plots and result CSVs remain. If YAML saving fails or the inventory was
+edited during calculation, those published copies remain for recovery. A cleanup
+failure is reported with a nonzero exit code; valid results and the saved time
+remain. If production advances during analysis, the analysed time is retained and
+the refreshed status is Incomplete; there is no immediate rerun.
 
-Once component outputs are usable, the parent process creates or updates each
+Existing retained input copies can recover `total_analysed_ps` without calculation
+when every required copy is readable, all endpoints agree, outputs validate, and
+no copy is newer than the results. A valid retained snapshot takes precedence over
+the saved value, recovering results published before a failed YAML save. Unequal
+live endpoints preserve the saved value until corrected. If recovery evidence is
+incomplete or unreliable, the saved value is used instead.
+
+To migrate existing analyses, run `refresh_analysis_status.py`, check the saved
+timestamps and remarks in `data.yaml`, and rebuild with `python3 build.py`.
+Preview and status refresh never delete retained copies. After confirming that
+a component has the correct saved `total_analysed_ps`, manually remove only its legacy
+`dhdl.<window>.xvg` files from `analysis/complex` or `analysis/ligand`. Keep its
+plots, CSVs and original `<folder>/<window>/prod/dhdl.xvg` simulation inputs.
+Do not remove recovery copies before their timestamp has been saved successfully.
+
+Once component outputs are usable, the runner creates or updates each affected
 complex repeat's `analysis/abfe_results.csv`, using its configured shared ligand
-summary and its own `boresch/resgen_output.txt`. It preserves the reference
-calculation, including its linear sum of estimator errors and its extraction of
-the second comma-separated correction (`dG_on`) from the `dG_off` line. Missing
-restraint inputs or compilation errors do not change component analysis status.
+summary and its own `boresch/resgen_output.txt`. A selected complex affects its
+own combined CSV; a selected ligand affects all its complex repeats' combined
+CSVs. Existing counterpart summaries are used without analysing unselected
+components. Missing counterpart folders or unusable summaries block compilation.
+The calculation preserves the reference behavior, including its linear sum of
+estimator errors and its extraction of the second comma-separated correction
+(`dG_on`) from the `dG_off` line. Missing restraint inputs or compilation errors
+do not change component analysis status.
 
-Independent calculations continue after failures. `--run` returns a nonzero exit
-code when selected work is blocked or fails, and still saves inspected statuses.
-Only the parent process saves YAML, using the existing backup helper. Generated
-`analysis_remark` values are refreshed without overwriting manual `remark` values,
-production fields or convergence. Status refresh is a snapshot; run it again after
+Independent calculations continue after failures. The runner returns a nonzero
+exit code when selected work is blocked or fails, and still saves inspected
+statuses. The runner saves YAML using the existing backup helper, and only
+selected records have their analysis fields refreshed. Generated
+`analysis_remark` and convergence values are refreshed without overwriting manual
+`remark` values or production fields. Status refresh is a snapshot; run it again after
 additional simulation data arrives. No-change refreshes create no backup.
 
 ## Development

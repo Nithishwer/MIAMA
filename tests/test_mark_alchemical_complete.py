@@ -50,7 +50,7 @@ def make_run(folder, status="Waiting"):
         "folder": str(folder) if folder is not None else None,
         "status": status,
         "remark": "Keep this manual note",
-        "convergence": "not_converged",
+        "convergence": "unconverged",
         "total_production_ns": 20,
         "completed_production_ns": 12.5,
     }
@@ -337,7 +337,7 @@ class AlchemicalTests(unittest.TestCase):
                 "alchemical_ligand"
             ]
             self.assertEqual(run["status"], expected_status)
-            self.assertEqual(run["convergence"], "not_converged")
+            self.assertEqual(run["convergence"], "unconverged")
             self.assertAlmostEqual(run["total_production_ns"], 0.0002)
             self.assertAlmostEqual(
                 run["completed_production_ns"],

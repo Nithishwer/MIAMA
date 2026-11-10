@@ -8,7 +8,7 @@ import yaml
 from utils.production_status import validate_production_files
 
 STATUSES = ("Attention required", "Complete", "Waiting")
-CONVERGENCE_VALUES = ("unknown", "not_converged", "converged")
+CONVERGENCE_VALUES = ("unknown", "unconverged", "converged")
 ANALYSIS_STATUSES = ("Missing", "Incomplete", "Complete")
 RUN_TYPES = (
     ("vanilla", "Vanilla"),
@@ -76,7 +76,12 @@ def validate_run(run, kind, path, errors):
     optional = (
         ("total_production_ns", "completed_production_ns")
         if kind == "vanilla"
-        else ("production_files", "analysis_status", "analysis_remark")
+        else (
+            "production_files",
+            "analysis_status",
+            "analysis_remark",
+            "total_analysed_ps",
+        )
     )
     if not check_fields(run, fields, path, errors, optional=optional):
         return
@@ -103,7 +108,11 @@ def validate_run(run, kind, path, errors):
         errors.append(
             f"{path}.convergence: expected one of {', '.join(CONVERGENCE_VALUES)}"
         )
-    for field in ("total_production_ns", "completed_production_ns"):
+    for field in (
+        "total_production_ns",
+        "completed_production_ns",
+        "total_analysed_ps",
+    ):
         value = run.get(field)
         if value is None:
             continue
