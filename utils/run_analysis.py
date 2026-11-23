@@ -27,6 +27,7 @@ from utils.analysis_utils import (
     select_entries,
     validate_outputs,
 )
+from utils.boresch import estimate_boresch_release
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -144,14 +145,19 @@ def compile_results(complex_folder, ligand_folder, *, force=False):
     ligand_stages = validate_outputs(ligand_directory, "ligand")
     restraint = Path(complex_folder).parent / "boresch/resgen_output.txt"
     correction = None
-    with restraint.open(encoding="utf-8") as stream:
-        for line in stream:
-            if line.startswith("dG_off"):
-                try:
-                    correction = float(line.split(",")[1].split(":")[1])
-                except (IndexError, ValueError):
-                    raise ValueError(f"{restraint}: invalid dG_off") from None
-                break
+    try:
+        with restraint.open(encoding="utf-8") as stream:
+            for line in stream:
+                if line.startswith("dG_off"):
+                    try:
+                        correction = float(line.split(",")[1].split(":")[1])
+                    except (IndexError, ValueError):
+                        raise ValueError(f"{restraint}: invalid dG_off") from None
+                    break
+    except FileNotFoundError:
+        # MIAMA adds dG_on, the negative of the analytical release correction.
+        correction = -estimate_boresch_release(complex_folder)
+        print(f"{complex_folder}\tAnalytical Boresch dG_on: {correction:.6f} kcal/mol")
     if correction is None or not math.isfinite(correction):
         raise ValueError(f"{restraint}: missing or invalid dG_off")
     rows = [
