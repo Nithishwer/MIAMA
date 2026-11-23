@@ -9,7 +9,12 @@ from unittest.mock import patch
 
 import yaml
 
-from utils.mark_vanilla_complete import check_vanilla, main, read_last_step, read_nsteps
+from utils.refresh_vanilla_status import (
+    check_vanilla,
+    main,
+    read_last_step,
+    read_nsteps,
+)
 
 
 class VanillaTests(unittest.TestCase):
@@ -285,7 +290,7 @@ class VanillaTests(unittest.TestCase):
         errors = io.StringIO()
         with (
             patch(
-                "utils.mark_vanilla_complete.update_yaml",
+                "utils.refresh_vanilla_status.update_yaml",
                 side_effect=PermissionError("backup permission denied"),
             ),
             redirect_stderr(errors),

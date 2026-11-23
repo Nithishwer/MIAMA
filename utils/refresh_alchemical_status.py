@@ -1,4 +1,4 @@
-"""Update alchemical completion status and production times, backing up YAML changes."""
+"""Refresh alchemical production status and times, backing up YAML changes."""
 
 import argparse
 import re

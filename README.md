@@ -82,15 +82,16 @@ Vanilla records require `folder`, `status` and `remark`, and optionally include
 | `total_analysed_ps` | Optional alchemical-only final timestamp used in analysis, in ps |
 
 Times cover production only, excluding minimisation and equilibration. The
-completion scripts calculate the MDP duration as `nsteps × dt / 1000` when `dt`
-is in ps, and completed time as the last logged `Time / 1000`. Alchemical times
+production status refresh scripts calculate the MDP duration as
+`nsteps × dt / 1000` when `dt` is in ps, and completed time as the last logged
+`Time / 1000`. Alchemical times
 describe only the selected window (default: `coul.00`), rather than the minimum
 across all windows. Zero means no production has completed; `null` means it has
 not been recorded. An extension may make completed production exceed the
 recorded total; this is allowed. Production is assumed to start at time zero.
 
 **Status and convergence are independent fields.** Edit them manually, or use
-the completion checkers below to update run statuses and production times. The
+the refresh scripts below to update run statuses and production times. The
 builder never reads simulation folders, MDP files, trajectories or scheduler
 state. Folder paths need not exist on the machine building the console.
 Displayed folders are selectable text, including paths to remote locations.
@@ -128,10 +129,10 @@ Directory existence was not used to infer progress, completion or convergence.
 Review and edit the YAML to reflect the actual runs. Rebuilds do not rescan the
 dataset or import new complexes automatically.
 
-## Mark completed vanilla production
+## Refresh vanilla status
 
 ```bash
-python3 utils/mark_vanilla_complete.py
+python3 utils/refresh_vanilla_status.py
 ```
 
 The script reads this repository's `data.yaml` and prints dataset, complex,
@@ -154,12 +155,12 @@ Before replacing the YAML, it archives an exact copy of the previous file in
 `archives/` folder is ignored by Git. Unchanged data creates no write or backup.
 Changed files are serialized using PyYAML, which does not preserve YAML comments.
 
-## Mark completed alchemical production
+## Refresh alchemical status
 
 ```bash
-python3 utils/mark_alchemical_complete.py
-python3 utils/mark_alchemical_complete.py --window vdw.00
-python3 utils/mark_alchemical_complete.py --dataset deflorian-set1
+python3 utils/refresh_alchemical_status.py
+python3 utils/refresh_alchemical_status.py --window vdw.00
+python3 utils/refresh_alchemical_status.py --dataset deflorian-set1
 ```
 
 Use `-d` or `--dataset` to check and update only that dataset, skipping production
@@ -286,7 +287,7 @@ the minimum endpoint. Independent components continue processing.
 Inputs are `<folder>/<window>/prod/dhdl.xvg`; outputs are in the sibling
 `analysis/complex` or `analysis/ligand` folder. Existing analysis symlinks are
 followed. Coverage checks compare current input endpoints with the saved analysis
-time, independently of the production window selected by completion scripts.
+time, independently of the window selected when refreshing production status.
 Expected complex windows are `rest.00`–`rest.10`, `coul.00`–`coul.09` and
 `vdw.00`–`vdw.20`; ligand windows are
 `coul.00`–`coul.10` and `vdw.00`–`vdw.20`. Missing inputs and unexpected layouts

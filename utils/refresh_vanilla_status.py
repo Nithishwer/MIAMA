@@ -1,4 +1,4 @@
-"""Update vanilla completion status and production times, backing up YAML changes."""
+"""Refresh vanilla production status and times, backing up YAML changes."""
 
 import sys
 from pathlib import Path

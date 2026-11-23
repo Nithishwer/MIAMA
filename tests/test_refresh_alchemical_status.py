@@ -13,7 +13,7 @@ from unittest.mock import call, patch
 
 import yaml
 
-from utils.mark_alchemical_complete import (
+from utils.refresh_alchemical_status import (
     UNSET_PRODUCTION_FILES,
     check_alchemical,
     main,
@@ -21,7 +21,7 @@ from utils.mark_alchemical_complete import (
     read_production_times,
 )
 
-SCRIPT = Path(__file__).resolve().parents[1] / "utils" / "mark_alchemical_complete.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "utils" / "refresh_alchemical_status.py"
 LIGAND_FILES = {
     "trajectory": "{stage}.prod.{number}.xtc",
     "log": "{stage}.prod.{number}.log",
@@ -515,11 +515,11 @@ class AlchemicalTests(unittest.TestCase):
                 output = io.StringIO()
                 with (
                     patch(
-                        "utils.mark_alchemical_complete.check_alchemical",
+                        "utils.refresh_alchemical_status.check_alchemical",
                         wraps=check_alchemical,
                     ) as check,
                     patch(
-                        "utils.mark_alchemical_complete.read_production_times",
+                        "utils.refresh_alchemical_status.read_production_times",
                         wraps=read_production_times,
                     ) as read_times,
                     redirect_stdout(output),
@@ -565,9 +565,11 @@ class AlchemicalTests(unittest.TestCase):
         errors = io.StringIO()
         output = io.StringIO()
         with (
-            patch("utils.mark_alchemical_complete.check_alchemical") as check,
-            patch("utils.mark_alchemical_complete.read_production_times") as read_times,
-            patch("utils.mark_alchemical_complete.update_yaml") as save,
+            patch("utils.refresh_alchemical_status.check_alchemical") as check,
+            patch(
+                "utils.refresh_alchemical_status.read_production_times"
+            ) as read_times,
+            patch("utils.refresh_alchemical_status.update_yaml") as save,
             redirect_stdout(output),
             redirect_stderr(errors),
         ):
@@ -598,7 +600,7 @@ class AlchemicalTests(unittest.TestCase):
         errors = io.StringIO()
         with (
             patch(
-                "utils.mark_alchemical_complete.update_yaml",
+                "utils.refresh_alchemical_status.update_yaml",
                 side_effect=PermissionError("backup permission denied"),
             ),
             redirect_stderr(errors),
