@@ -21,6 +21,16 @@ def print_status(compound, repeat, leg, status):
     print(f"{compound:<18}{repeat!s:<8}{leg:<10}{status}")
 
 
+def failure_message(compound, repeat, leg, path, error):
+    """Keep the actual failed path and a single-line reason, without a traceback."""
+    if isinstance(error, OSError):
+        detail = f"{error.filename or path or '<unset>'}: {error.strerror or error}"
+    else:
+        reason = str(error)
+        detail = reason if reason.startswith("/") else f"{path or '<unset>'}: {reason}"
+    return f"{compound} {repeat} {leg}: {' '.join(detail.splitlines())}"
+
+
 def read_total(path, method):
     """Read the selected estimator from exactly one total row."""
     with path.open(encoding="utf-8", newline="") as stream:
@@ -39,10 +49,12 @@ def read_total(path, method):
     return value
 
 
-def collect_results(dataset, data_directory, method, collect=False):
+def collect_results(dataset, data_directory, method, collect=False, failures=None):
     """Group existing estimates by compound, optionally rebuilding every CSV."""
     points = []
     failed = False
+    if failures is None:
+        failures = []
     for compound_id, compound in dataset["complexes"].items():
         values = []
         for repeat, runs in sorted(compound["repeats"].items()):
@@ -55,11 +67,20 @@ def collect_results(dataset, data_directory, method, collect=False):
             found = path is not None and path.is_file()
             if not collect and not found:
                 print_status(compound_id, repeat, "complex", "error")
+                reason = "result CSV not found" if path else "folder is not configured"
+                failures.append(
+                    failure_message(compound_id, repeat, "complex", path, reason)
+                )
                 continue
             ligand_folder = compound["alchemical_ligand"]["folder"]
             if collect and (not folder or not ligand_folder):
                 leg = "complex" if not folder else "ligand"
                 print_status(compound_id, repeat, leg, "error")
+                failures.append(
+                    failure_message(
+                        compound_id, repeat, leg, None, "folder is not configured"
+                    )
+                )
                 failed = True
                 continue
             statuses = {} if collect else {"complex": "present"}
@@ -72,8 +93,9 @@ def collect_results(dataset, data_directory, method, collect=False):
                         report_status=statuses.__setitem__,
                     )
                 values.append(read_total(path, method))
-            except (OSError, UnicodeError, ValueError, csv.Error):
+            except (OSError, UnicodeError, ValueError, csv.Error) as error:
                 leg = "complex"
+                error_path = path
                 if collect:
                     # The first unreported leg is the input that failed validation.
                     leg = next(
@@ -84,7 +106,17 @@ def collect_results(dataset, data_directory, method, collect=False):
                         ),
                         "complex",
                     )
+                    if leg not in statuses:
+                        complex_folder = data_directory / folder
+                        error_path = {
+                            "complex": complex_folder,
+                            "ligand": data_directory / ligand_folder,
+                            "boresch": complex_folder.parent / "boresch",
+                        }[leg]
                 statuses[leg] = "error"
+                failures.append(
+                    failure_message(compound_id, repeat, leg, error_path, error)
+                )
                 failed = True
             for leg, status in statuses.items():
                 print_status(compound_id, repeat, leg, status)
@@ -189,6 +221,7 @@ def main(argv=None, data_path=ROOT / "data.yaml"):
         datasets = {args.dataset: datasets[args.dataset]}
 
     failed = False
+    failures = []
     print_status("Compound", "Repeat", "Leg", "Status")
     for dataset_id, dataset in datasets.items():
         points, invalid = collect_results(
@@ -196,12 +229,16 @@ def main(argv=None, data_path=ROOT / "data.yaml"):
             data_path.parent,
             args.method,
             collect=args.collect,
+            failures=failures,
         )
         failed = failed or invalid
         if not points:
             continue
         output = args.output_dir / f"{dataset_id}_{args.method}.png"
         plot_results(points, dataset["label"], args.method, output)
+    if failures:
+        print("\nFailures:")
+        print("\n".join(failures))
     return int(failed)
 
 

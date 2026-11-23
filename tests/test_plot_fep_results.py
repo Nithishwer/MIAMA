@@ -97,7 +97,8 @@ class InventoryTests(unittest.TestCase):
             )
 
     def status_rows(self):
-        return [line.split() for line in self.output.getvalue().splitlines()]
+        table = self.output.getvalue().split("\nFailures:", 1)[0]
+        return [line.split() for line in table.splitlines()]
 
     def test_averages_repeats_and_uses_sample_sd(self):
         self.write_result(1, "state,MBAR\ntotal,-8\n")
@@ -286,22 +287,27 @@ class InventoryTests(unittest.TestCase):
     def test_failed_collection_preserves_csv_and_plots_other_repeats(self):
         for failure in ("missing summary", "invalid correction", "invalid topology"):
             with self.subTest(failure=failure):
+                self.output = io.StringIO()
                 restraint = self.write_components(1)
                 self.write_components(2)
                 previous = self.write_result(1, "state,MBAR\ntotal,-99\n")
                 original = previous.read_bytes()
                 self.write_result(2, "state,MBAR\ntotal,-90\n")
                 if failure == "missing summary":
-                    (
+                    failed_path = (
                         restraint.parent.parent / "analysis/complex/ABFE_summary.csv"
-                    ).unlink()
+                    )
+                    failed_path.unlink()
+                    reason = "No such file or directory"
                 elif failure == "invalid correction":
                     restraint.write_text("dG_off: 999, dG_on: invalid\n")
+                    failed_path = restraint
+                    reason = "invalid dG_off"
                 else:
                     restraint.unlink()
-                    restraint.with_name("BoreschRestraint.top").write_text(
-                        "invalid topology"
-                    )
+                    failed_path = restraint.with_name("BoreschRestraint.top")
+                    failed_path.write_text("invalid topology")
+                    reason = "expected one bond, two angles and three dihedrals"
                     mdp = (
                         restraint.parent.parent
                         / "complex/rest.00/prod/rest.prod.00.mdp"
@@ -321,7 +327,50 @@ class InventoryTests(unittest.TestCase):
                 self.assertEqual(plot.call_args.args[0], [(-8, -7, None)])
                 leg = "complex" if failure == "missing summary" else "boresch"
                 self.assertIn(["ligand_01", "1", leg, "error"], self.status_rows())
+                self.assertIn("\nFailures:\n", self.output.getvalue())
+                self.assertIn(f"{failed_path}: {reason}", self.output.getvalue())
+                table = self.output.getvalue().split("\nFailures:", 1)[0]
+                self.assertNotIn(str(self.root), table)
         self.assertEqual(self.errors.getvalue(), "")
+
+    def test_cli_summary_reports_failed_result_and_reason(self):
+        self.write_result(1, "state,MBAR\ntotal,-9\n")
+        failed_path = self.write_result(2, "state,MBAR\ntotal,nan\n")
+        data_path = self.root / "data.yaml"
+        data_path.write_text(yaml.safe_dump(self.document))
+        with redirect_stdout(self.output), patch.object(plotter, "plot_results"):
+            status = plotter.main([], data_path)
+        self.assertEqual(status, 1)
+        table, summary = self.output.getvalue().split("\nFailures:\n")
+        self.assertNotIn(str(self.root), table)
+        self.assertEqual(
+            summary.strip(), f"ligand_01 2 complex: {failed_path}: nonfinite MBAR total"
+        )
+
+    def test_cli_summary_reports_missing_results_without_changing_exit_status(self):
+        data_path = self.root / "data.yaml"
+        data_path.write_text(yaml.safe_dump(self.document))
+        with redirect_stdout(self.output):
+            status = plotter.main([], data_path)
+        self.assertEqual(status, 0)
+        summary = self.output.getvalue().split("\nFailures:\n")[1]
+        for repeat in (1, 2):
+            path = self.root / f"repeat{repeat}/analysis/abfe_results.csv"
+            self.assertIn(
+                f"ligand_01 {repeat} complex: {path}: result CSV not found", summary
+            )
+
+    def test_cli_summary_reports_unset_folders(self):
+        self.compound["repeats"][1]["alchemical_complex"]["folder"] = None
+        self.compound["alchemical_ligand"]["folder"] = None
+        data_path = self.root / "data.yaml"
+        data_path.write_text(yaml.safe_dump(self.document))
+        with redirect_stdout(self.output):
+            status = plotter.main(["--collect"], data_path)
+        self.assertEqual(status, 1)
+        summary = self.output.getvalue().split("\nFailures:\n")[1]
+        self.assertIn("ligand_01 1 complex: <unset>: folder is not configured", summary)
+        self.assertIn("ligand_01 2 ligand: <unset>: folder is not configured", summary)
 
     def test_compiles_without_experimental_values(self):
         del self.compound["experimental_dg"]
