@@ -392,12 +392,16 @@ python utils/plot_fep_results.py --dataset yuan-dor-c2 --method TI --output-dir 
 python utils/plot_fep_results.py --dataset yuan-dor-c1 --collect
 ```
 
-The utility reports `Found` or `Missing` for every selected complex repeat's
-`analysis/abfe_results.csv`. By default it only plots existing CSVs and skips
-missing ones. Use `--collect` to rebuild and overwrite every selected repeat's
+The utility prints only an aligned table with `Compound`, `Repeat`, `Leg`, and
+`Status` columns. Legs are `complex`, `ligand`, or `boresch`; statuses are
+`present`, `created`, or `error`. By default, `complex` rows describe existing
+`analysis/abfe_results.csv` files; missing files show `error` and are skipped.
+Use `--collect` to rebuild and overwrite every selected repeat's
 CSV before plotting the new results, including identical CSVs. Compilation uses
 that repeat's complex analysis, its configured shared ligand analysis, and its
-`boresch/resgen_output.txt` restraint correction, then reports `Compiled`.
+`boresch/resgen_output.txt` restraint correction. Collection reports each validated
+leg as `present`, or the analytical Boresch fallback as `created`. Failed legs
+show `error`. Paths, correction values, skip messages, and save messages are omitted.
 Component analyses need valid `ABFE_summary.csv` and `ABFE_convergence.csv` files.
 
 If `boresch/resgen_output.txt` is absent, compilation estimates the analytical
@@ -410,7 +414,7 @@ finite positive temperature. The release formula uses R = 0.008314472 kJ/mol/K
 and V° = 1.66 nm³, then divides by 4.184 for kcal/mol
 ([Boresch, 2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC11094717/)).
 MIAMA's `anal_rest` uses **minus the release correction**, matching its existing
-`dG_on` convention, with zero estimator error. The fallback is reported and does
+`dG_on` convention, with zero estimator error. The fallback shows `created` and does
 not generate a replacement Boresch output or rerun simulation or restraint fitting.
 Missing or invalid fallback inputs cause compilation to fail without replacing
 the previous CSV. Existing Boresch output takes precedence; invalid existing
@@ -425,7 +429,7 @@ with `--collect`. Saved analysis and convergence statuses do not filter results.
 
 Enter each compound's `experimental_dg` in `data.yaml` to include it in a plot.
 With `--collect`, compilation also runs when experimental values are unset, but
-those compounds are reported and excluded from plots. Each compound is plotted
+those compounds are excluded from plots. Each compound is plotted
 as the mean of its available valid repeats, with sample SD as the vertical error
 bar. A single available repeat has no vertical error bar. Horizontal error bars
 are fixed at ±1 kcal/mol to match the reference figure; they are an assumed
