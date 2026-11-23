@@ -16,6 +16,11 @@ from utils.run_analysis import compile_results
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def print_status(compound, repeat, leg, status):
+    """Print one compact status row without filesystem paths."""
+    print(f"{compound:<18}{repeat!s:<8}{leg:<10}{status}")
+
+
 def read_total(path, method):
     """Read the selected estimator from exactly one total row."""
     with path.open(encoding="utf-8", newline="") as stream:
@@ -34,7 +39,7 @@ def read_total(path, method):
     return value
 
 
-def collect_results(dataset_id, dataset, data_directory, method, collect=False):
+def collect_results(dataset, data_directory, method, collect=False):
     """Group existing estimates by compound, optionally rebuilding every CSV."""
     points = []
     failed = False
@@ -47,38 +52,45 @@ def collect_results(dataset_id, dataset, data_directory, method, collect=False):
                 if folder
                 else None
             )
-            label = f"{dataset_id}\t{compound_id}\t{repeat}\t{path or '-'}"
             found = path is not None and path.is_file()
-            print(f"{label}\t{'Found' if found else 'Missing'}")
-            if collect:
-                try:
-                    ligand_folder = compound["alchemical_ligand"]["folder"]
-                    if not folder or not ligand_folder:
-                        raise ValueError(
-                            "Complex or shared ligand source folder is not set"
-                        )
+            if not collect and not found:
+                print_status(compound_id, repeat, "complex", "error")
+                continue
+            ligand_folder = compound["alchemical_ligand"]["folder"]
+            if collect and (not folder or not ligand_folder):
+                leg = "complex" if not folder else "ligand"
+                print_status(compound_id, repeat, leg, "error")
+                failed = True
+                continue
+            statuses = {} if collect else {"complex": "present"}
+            try:
+                if collect:
                     compile_results(
                         data_directory / folder,
                         data_directory / ligand_folder,
                         force=True,
+                        report_status=statuses.__setitem__,
                     )
-                    print(f"{label}\tCompiled")
-                except (OSError, UnicodeError, ValueError, csv.Error) as error:
-                    print(f"{label}\tCompilation failed: {error}", file=sys.stderr)
-                    failed = True
-                    continue
-            elif not found:
-                continue
-            try:
                 values.append(read_total(path, method))
-            except (OSError, UnicodeError, ValueError, csv.Error) as error:
-                print(f"{label}\tInvalid: {error}", file=sys.stderr)
+            except (OSError, UnicodeError, ValueError, csv.Error):
+                leg = "complex"
+                if collect:
+                    # The first unreported leg is the input that failed validation.
+                    leg = next(
+                        (
+                            leg
+                            for leg in ("complex", "ligand", "boresch")
+                            if leg not in statuses
+                        ),
+                        "complex",
+                    )
+                statuses[leg] = "error"
                 failed = True
+            for leg, status in statuses.items():
+                print_status(compound_id, repeat, leg, status)
 
         experimental = compound.get("experimental_dg")
-        if experimental is None:
-            print(f"{dataset_id}\t{compound_id}\tSkipped: experimental_dg is not set")
-        elif values:
+        if experimental is not None and values:
             # Repeat variability is separate from each estimator's reported error.
             error = stdev(values) if len(values) > 1 else None
             points.append((experimental, mean(values), error))
@@ -177,10 +189,9 @@ def main(argv=None, data_path=ROOT / "data.yaml"):
         datasets = {args.dataset: datasets[args.dataset]}
 
     failed = False
-    print("Dataset\tCompound\tRepeat\tPath\tStatus")
+    print_status("Compound", "Repeat", "Leg", "Status")
     for dataset_id, dataset in datasets.items():
         points, invalid = collect_results(
-            dataset_id,
             dataset,
             data_path.parent,
             args.method,
@@ -188,11 +199,9 @@ def main(argv=None, data_path=ROOT / "data.yaml"):
         )
         failed = failed or invalid
         if not points:
-            print(f"{dataset_id}\tSkipped: no plottable compounds")
             continue
         output = args.output_dir / f"{dataset_id}_{args.method}.png"
         plot_results(points, dataset["label"], args.method, output)
-        print(f"Saved {output}")
     return int(failed)
 
 

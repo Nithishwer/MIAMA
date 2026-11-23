@@ -137,14 +137,22 @@ def cleanup_inputs(entries):
     return failed
 
 
-def compile_results(complex_folder, ligand_folder, *, force=False):
-    """Combine results into abfe_results.csv; force also rewrites identical CSVs."""
+def compile_results(complex_folder, ligand_folder, *, force=False, report_status=None):
+    """Combine results; force also rewrites identical CSVs.
+
+    report_status receives validated legs in complex, ligand, boresch order.
+    """
     complex_directory = analysis_folder(complex_folder, "complex")
     ligand_directory = analysis_folder(ligand_folder, "ligand")
     complex_stages = validate_outputs(complex_directory, "complex")
+    if report_status is not None:
+        report_status("complex", "present")
     ligand_stages = validate_outputs(ligand_directory, "ligand")
+    if report_status is not None:
+        report_status("ligand", "present")
     restraint = Path(complex_folder).parent / "boresch/resgen_output.txt"
     correction = None
+    restraint_status = "present"
     try:
         with restraint.open(encoding="utf-8") as stream:
             for line in stream:
@@ -157,9 +165,15 @@ def compile_results(complex_folder, ligand_folder, *, force=False):
     except FileNotFoundError:
         # MIAMA adds dG_on, the negative of the analytical release correction.
         correction = -estimate_boresch_release(complex_folder)
-        print(f"{complex_folder}\tAnalytical Boresch dG_on: {correction:.6f} kcal/mol")
+        restraint_status = "created"
+        if report_status is None:
+            print(
+                f"{complex_folder}\tAnalytical Boresch dG_on: {correction:.6f} kcal/mol"
+            )
     if correction is None or not math.isfinite(correction):
         raise ValueError(f"{restraint}: missing or invalid dG_off")
+    if report_status is not None:
+        report_status("boresch", restraint_status)
     rows = [
         ["ligand_coul", *ligand_stages["coul"]],
         ["ligand_vdw", *ligand_stages["vdw"]],

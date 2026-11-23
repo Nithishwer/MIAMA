@@ -90,12 +90,14 @@ class InventoryTests(unittest.TestCase):
     def collect(self, method="MBAR", collect=False):
         with redirect_stdout(self.output), redirect_stderr(self.errors):
             return plotter.collect_results(
-                "example",
                 self.document["datasets"]["example"],
                 self.root,
                 method,
                 collect=collect,
             )
+
+    def status_rows(self):
+        return [line.split() for line in self.output.getvalue().splitlines()]
 
     def test_averages_repeats_and_uses_sample_sd(self):
         self.write_result(1, "state,MBAR\ntotal,-8\n")
@@ -106,16 +108,27 @@ class InventoryTests(unittest.TestCase):
         self.assertFalse(failed)
         self.assertEqual(points[0][:2], (-8, -9))
         self.assertAlmostEqual(points[0][2], math.sqrt(2))
-        self.assertEqual(self.output.getvalue().count("\tFound"), 2)
+        self.assertEqual(
+            self.status_rows(),
+            [
+                ["ligand_01", "1", "complex", "present"],
+                ["ligand_01", "2", "complex", "present"],
+            ],
+        )
 
     def test_missing_repeat_leaves_one_point_without_sd(self):
         path = self.write_result(1, "state,MBAR\ntotal,-9\n")
         points, failed = self.collect()
         self.assertFalse(failed)
         self.assertEqual(points, [(-8, -9, None)])
-        self.assertIn(str(path), self.output.getvalue())
-        self.assertIn("example\tligand_01\t2\t", self.output.getvalue())
-        self.assertIn("\tMissing", self.output.getvalue())
+        self.assertNotIn(str(path), self.output.getvalue())
+        self.assertEqual(
+            self.status_rows(),
+            [
+                ["ligand_01", "1", "complex", "present"],
+                ["ligand_01", "2", "complex", "error"],
+            ],
+        )
         self.assertEqual(self.errors.getvalue(), "")
 
     def test_unset_folder_is_reported_as_missing(self):
@@ -123,7 +136,7 @@ class InventoryTests(unittest.TestCase):
         points, failed = self.collect()
         self.assertEqual(points, [])
         self.assertFalse(failed)
-        self.assertIn("example\tligand_01\t1\t-\tMissing", self.output.getvalue())
+        self.assertIn(["ligand_01", "1", "complex", "error"], self.status_rows())
         self.assertEqual(self.errors.getvalue(), "")
 
     def test_invalid_repeat_is_reported_and_other_values_are_kept(self):
@@ -132,8 +145,9 @@ class InventoryTests(unittest.TestCase):
         points, failed = self.collect()
         self.assertTrue(failed)
         self.assertEqual(points, [(-8, -9, None)])
-        self.assertIn(str(path), self.errors.getvalue())
-        self.assertIn("Invalid:", self.errors.getvalue())
+        self.assertNotIn(str(path), self.output.getvalue())
+        self.assertIn(["ligand_01", "1", "complex", "error"], self.status_rows())
+        self.assertEqual(self.errors.getvalue(), "")
 
     def test_missing_experiment_still_reports_result_availability(self):
         del self.compound["experimental_dg"]
@@ -142,8 +156,8 @@ class InventoryTests(unittest.TestCase):
         points, failed = self.collect()
         self.assertFalse(failed)
         self.assertEqual(points, [])
-        self.assertIn("\tFound", self.output.getvalue())
-        self.assertIn("experimental_dg is not set", self.output.getvalue())
+        self.assertEqual(len(self.status_rows()), 2)
+        self.assertTrue(all(row[-1] == "present" for row in self.status_rows()))
 
     def test_cli_filters_dataset_and_leaves_inputs_unchanged(self):
         del self.compound["repeats"][2]
@@ -173,7 +187,13 @@ class InventoryTests(unittest.TestCase):
         plot.assert_called_once_with(
             [(-8, -10, None)], "Example dataset", "TI", self.root / "example_TI.png"
         )
-        self.assertNotIn("other\t", self.output.getvalue())
+        self.assertEqual(
+            self.status_rows(),
+            [
+                ["Compound", "Repeat", "Leg", "Status"],
+                ["ligand_01", "1", "complex", "present"],
+            ],
+        )
         for path, contents in originals.items():
             self.assertEqual(path.read_bytes(), contents)
 
@@ -207,7 +227,14 @@ class InventoryTests(unittest.TestCase):
             status = plotter.main(["--output-dir", str(output_dir)], data_path)
         self.assertEqual(status, 0)
         self.assertFalse(output_dir.exists())
-        self.assertIn("no plottable compounds", self.output.getvalue())
+        self.assertEqual(
+            self.status_rows(),
+            [
+                ["Compound", "Repeat", "Leg", "Status"],
+                ["ligand_01", "1", "complex", "error"],
+                ["ligand_01", "2", "complex", "error"],
+            ],
+        )
 
     def test_missing_results_are_compiled_using_the_shared_ligand(self):
         results = [
@@ -226,8 +253,15 @@ class InventoryTests(unittest.TestCase):
                 for path in results:
                     self.assertEqual(plotter.read_total(path, "MBAR"), -7)
                     self.assertEqual(plotter.read_total(path, "TI"), -9)
-        self.assertEqual(self.output.getvalue().count("\tMissing"), 4)
-        self.assertEqual(self.output.getvalue().count("\tCompiled"), 4)
+        self.assertEqual(
+            self.status_rows(),
+            [
+                ["ligand_01", str(repeat), leg, "present"]
+                for _ in range(2)
+                for repeat in (1, 2)
+                for leg in ("complex", "ligand", "boresch")
+            ],
+        )
 
     def test_cli_collect_rebuilds_existing_and_malformed_results(self):
         self.write_components(1, correction=-4)
@@ -285,7 +319,9 @@ class InventoryTests(unittest.TestCase):
                 self.assertEqual(status, 1)
                 self.assertEqual(previous.read_bytes(), original)
                 self.assertEqual(plot.call_args.args[0], [(-8, -7, None)])
-        self.assertIn("Compilation failed:", self.errors.getvalue())
+                leg = "complex" if failure == "missing summary" else "boresch"
+                self.assertIn(["ligand_01", "1", leg, "error"], self.status_rows())
+        self.assertEqual(self.errors.getvalue(), "")
 
     def test_compiles_without_experimental_values(self):
         del self.compound["experimental_dg"]
@@ -297,7 +333,8 @@ class InventoryTests(unittest.TestCase):
         self.assertFalse(failed)
         self.assertEqual(points, [])
         self.assertTrue(all(path.is_file() for path in results))
-        self.assertIn("experimental_dg is not set", self.output.getvalue())
+        self.assertEqual(len(self.status_rows()), 6)
+        self.assertTrue(all(row[-1] == "present" for row in self.status_rows()))
 
     def test_unset_shared_ligand_prevents_compilation(self):
         self.write_components(1)
@@ -305,7 +342,8 @@ class InventoryTests(unittest.TestCase):
         points, failed = self.collect(collect=True)
         self.assertTrue(failed)
         self.assertEqual(points, [])
-        self.assertIn("shared ligand source folder is not set", self.errors.getvalue())
+        self.assertIn(["ligand_01", "1", "ligand", "error"], self.status_rows())
+        self.assertEqual(self.errors.getvalue(), "")
 
     def test_collect_estimates_missing_boresch_output_and_plots_new_total(self):
         del self.compound["repeats"][2]
@@ -336,7 +374,16 @@ class InventoryTests(unittest.TestCase):
             self.assertEqual(float(rows["anal_rest"][f"{method}_Error"]), 0)
         self.assertFalse(restraint.exists())
         self.assertEqual(topology.read_text(), TOPOLOGY)
-        self.assertIn("Analytical Boresch dG_on", self.output.getvalue())
+        self.assertEqual(
+            self.status_rows(),
+            [
+                ["Compound", "Repeat", "Leg", "Status"],
+                ["ligand_01", "1", "complex", "present"],
+                ["ligand_01", "1", "ligand", "present"],
+                ["ligand_01", "1", "boresch", "created"],
+            ],
+        )
+        self.assertEqual(self.errors.getvalue(), "")
 
     def test_default_does_not_compile_even_with_ready_component_inputs(self):
         self.write_components(1)
