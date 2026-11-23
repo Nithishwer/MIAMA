@@ -392,7 +392,7 @@ python utils/plot_fep_results.py --dataset yuan-dor-c2 --method TI --output-dir 
 python utils/plot_fep_results.py --dataset yuan-dor-c1 --collect
 ```
 
-The utility prints only an aligned table with `Compound`, `Repeat`, `Leg`, and
+The utility prints an aligned table with `Compound`, `Repeat`, `Leg`, and
 `Status` columns. Legs are `complex`, `ligand`, or `boresch`; statuses are
 `present`, `created`, or `error`. By default, `complex` rows describe existing
 `analysis/abfe_results.csv` files; missing files show `error` and are skipped.
@@ -401,7 +401,9 @@ CSV before plotting the new results, including identical CSVs. Compilation uses
 that repeat's complex analysis, its configured shared ligand analysis, and its
 `boresch/resgen_output.txt` restraint correction. Collection reports each validated
 leg as `present`, or the analytical Boresch fallback as `created`. Failed legs
-show `error`. Paths, correction values, skip messages, and save messages are omitted.
+show `error`. A concise `Failures:` summary follows the table, listing each failed
+compound, repeat and leg with its path and reason. Unset folders show `<unset>`.
+Successful paths, correction values, skip messages, and save messages are omitted.
 Component analyses need valid `ABFE_summary.csv` and `ABFE_convergence.csv` files.
 
 If `boresch/resgen_output.txt` is absent, compilation estimates the analytical
