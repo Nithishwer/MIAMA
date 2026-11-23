@@ -1,5 +1,6 @@
 """Check result selection, partial repeats and experimental comparison plots."""
 
+import csv
 import io
 import math
 import tempfile
@@ -11,6 +12,7 @@ from unittest.mock import patch
 
 import yaml
 from test_analysis import write_outputs
+from test_boresch import TOPOLOGY
 from test_console import complex_record, example_data
 
 from utils import plot_fep_results as plotter
@@ -248,7 +250,7 @@ class InventoryTests(unittest.TestCase):
                 self.assertEqual(plotter.read_total(paths[1], "MBAR"), -9)
 
     def test_failed_collection_preserves_csv_and_plots_other_repeats(self):
-        for failure in ("missing summary", "invalid correction"):
+        for failure in ("missing summary", "invalid correction", "invalid topology"):
             with self.subTest(failure=failure):
                 restraint = self.write_components(1)
                 self.write_components(2)
@@ -259,8 +261,19 @@ class InventoryTests(unittest.TestCase):
                     (
                         restraint.parent.parent / "analysis/complex/ABFE_summary.csv"
                     ).unlink()
-                else:
+                elif failure == "invalid correction":
                     restraint.write_text("dG_off: 999, dG_on: invalid\n")
+                else:
+                    restraint.unlink()
+                    restraint.with_name("BoreschRestraint.top").write_text(
+                        "invalid topology"
+                    )
+                    mdp = (
+                        restraint.parent.parent
+                        / "complex/rest.00/prod/rest.prod.00.mdp"
+                    )
+                    mdp.parent.mkdir(parents=True)
+                    mdp.write_text("ref-t = 298.15 298.15\n")
                 data_path = self.root / "data.yaml"
                 data_path.write_text(yaml.safe_dump(self.document))
                 with (
@@ -293,6 +306,37 @@ class InventoryTests(unittest.TestCase):
         self.assertTrue(failed)
         self.assertEqual(points, [])
         self.assertIn("shared ligand source folder is not set", self.errors.getvalue())
+
+    def test_collect_estimates_missing_boresch_output_and_plots_new_total(self):
+        del self.compound["repeats"][2]
+        restraint = self.write_components(1)
+        restraint.unlink()
+        topology = restraint.with_name("BoreschRestraint.top")
+        topology.write_text(TOPOLOGY)
+        mdp = restraint.parent.parent / "complex/rest.00/prod/rest.prod.00.mdp"
+        mdp.parent.mkdir(parents=True)
+        mdp.write_text("ref-t = 298.15 298.15\n")
+        data_path = self.root / "data.yaml"
+        data_path.write_text(yaml.safe_dump(self.document))
+        with (
+            redirect_stdout(self.output),
+            redirect_stderr(self.errors),
+            patch.object(plotter, "plot_results") as plot,
+        ):
+            status = plotter.main(["--collect"], data_path)
+        self.assertEqual(status, 0)
+        correction = 9.23382693797829
+        # MIAMA uses dG_on = -release, then adds ligand stages minus complex stages.
+        self.assertAlmostEqual(plot.call_args.args[0][0][1], correction - 3)
+        result = restraint.parent.parent / "analysis/abfe_results.csv"
+        with result.open() as stream:
+            rows = {row["state"]: row for row in csv.DictReader(stream)}
+        for method in ("MBAR", "BAR", "TI"):
+            self.assertAlmostEqual(float(rows["anal_rest"][method]), correction)
+            self.assertEqual(float(rows["anal_rest"][f"{method}_Error"]), 0)
+        self.assertFalse(restraint.exists())
+        self.assertEqual(topology.read_text(), TOPOLOGY)
+        self.assertIn("Analytical Boresch dG_on", self.output.getvalue())
 
     def test_default_does_not_compile_even_with_ready_component_inputs(self):
         self.write_components(1)

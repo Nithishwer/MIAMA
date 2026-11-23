@@ -400,6 +400,22 @@ that repeat's complex analysis, its configured shared ligand analysis, and its
 `boresch/resgen_output.txt` restraint correction, then reports `Compiled`.
 Component analyses need valid `ABFE_summary.csv` and `ABFE_convergence.csv` files.
 
+If `boresch/resgen_output.txt` is absent, compilation estimates the analytical
+harmonic Boresch correction from `boresch/BoreschRestraint.top`, or its copy at
+`complex/BoreschRestraint.top` when the first topology is absent. It uses the
+saved B-state bond, angle and dihedral parameters, converting angle references
+from degrees to radians. Temperature comes from `ref-t` (or `ref_t`) in
+`complex/rest.00/prod/rest.prod.00.mdp`; all thermostat groups must share one
+finite positive temperature. The release formula uses R = 0.008314472 kJ/mol/K
+and V° = 1.66 nm³, then divides by 4.184 for kcal/mol
+([Boresch, 2024](https://pmc.ncbi.nlm.nih.gov/articles/PMC11094717/)).
+MIAMA's `anal_rest` uses **minus the release correction**, matching its existing
+`dG_on` convention, with zero estimator error. The fallback is reported and does
+not generate a replacement Boresch output or rerun simulation or restraint fitting.
+Missing or invalid fallback inputs cause compilation to fail without replacing
+the previous CSV. Existing Boresch output takes precedence; invalid existing
+output is reported rather than replaced by an estimate.
+
 The plot uses the unique `total` row. It defaults to all datasets and MBAR;
 `--method` also accepts BAR and TI. Invalid CSVs and compilation failures are
 reported and skipped, processing continues, and the command returns a nonzero
