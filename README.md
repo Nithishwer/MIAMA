@@ -496,6 +496,57 @@ repeats and creates no campaign. An empty selection also creates no campaign. Re
 requires simulation files to be readable locally. This creates metadata only;
 simulation folders are not copied or submitted, and `data.yaml` is unchanged.
 
+## Generate Ranvier complex jobs
+
+Generate both Ranvier job scripts for an existing complex campaign:
+
+```bash
+python3 utils/make_ranvier_complex_jobs.py campaigns/<campaign-name>/campaign.yaml
+```
+
+The utility accepts only `cluster: ranv` and `stage: alchemical_complex`. It
+validates every source folder and target script before writing anything. Each
+source must contain `rest.NN`, `coul.NN` or `vdw.NN` window directories. Windows
+are ordered by stage (`rest`, `coul`, `vdw`) and then by number; their names are
+embedded in each script, with one array task per window. Source paths use the
+same local paths as campaign transfer; relative paths use the current directory.
+
+Each source receives executable `job_complex_ranv.sh` and
+`job_complex_ranv_contd.sh` files. Existing scripts are refused unless
+`--overwrite` is supplied; symlinks and directory targets are always refused.
+Simulation inputs, outputs and campaign YAML are unchanged. Generation does not
+contact Ranvier or submit jobs.
+
+Both jobs use `GROMACS/2023.1-foss-2022a-CUDA-11.7.0`, one GPU, eight CPU threads
+and 24 hours per window. They run independent windows, without replica exchange.
+The start job runs `enmin`, `nvt`, `npt_b`, `npt_pr` and `prod` in order, compiling
+each stage's `topol.tpr` from its MDP and the preceding coordinates. It follows
+the existing complex topology/index conventions and uses `-maxwarn 2`, as in
+the Archer jobs. It starts each stage without checkpoint continuation, even if
+old outputs exist. GROMACS default output filenames are preserved.
+
+The continuation job runs production only. Each task requires nonempty
+`<window>/prod/topol.tpr` and `state.cpt` and uses `-cpi state.cpt -append`.
+It never recompiles the TPR or falls back to a fresh run. Check compatibility of
+existing checkpoints with the Ranvier GROMACS runtime before submitting all
+windows. Every job stops immediately if a command fails.
+
+When using the existing `transfer_campaign.py` utility, stage the campaign again
+after generating the scripts locally:
+
+```bash
+python3 utils/transfer_campaign.py stage campaigns/<campaign-name>/campaign.yaml
+```
+
+Then, on Ranvier, manually submit continuation jobs for incomplete production:
+
+```bash
+bash /home/reub0138/<campaign-name>/submit_campaign_contd.sh
+```
+
+Use `submit_campaign.sh` instead when intentionally running the full workflow
+from the beginning. Staging itself does not submit jobs.
+
 ## Development
 
 The loader and validation live in `data.py`. `build.py` prepares the three views
