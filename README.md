@@ -378,6 +378,80 @@ selected records have their analysis fields refreshed. Generated
 `remark` values or production fields. Status refresh is a snapshot; run it again after
 additional simulation data arrives. No-change refreshes create no backup.
 
+## Create a simulation campaign
+
+```bash
+python3 utils/make_simulation_campaign.py \
+  --dataset deflorian-set1 --stage alchemical_complex --cluster ranv \
+  --status "attention required"
+```
+
+Use a dataset ID from `data.yaml`. Stages are `alchemical_complex`,
+`alchemical_ligand` and `vanilla`; clusters are `ranv`, `soma` and `archer`.
+The required `--status` accepts `waiting` or `"attention required"`,
+case-insensitively. Only runs matching the dataset, stage and status are selected:
+each matching vanilla or complex repeat, or each shared ligand once.
+The script creates a folder such as
+`campaigns/deflorian-set1_alc-complex_20261026/` under this repository,
+regardless of the current working directory. Dataset names are shortened to
+32 characters for folder names. Existing names receive a numeric suffix
+(`_2`, `_3`, etc.). The entire `campaigns/` directory is ignored by Git.
+
+Each folder contains one `campaign.yaml` with the full dataset ID, stage,
+cluster, an ISO creation timestamp in Europe/London time, the canonical status
+(`Waiting` or `Attention required`) and a `runs` list. Each run records its
+`compound`, `repeat`, `source`, `destination`, `total_production_ns` and
+`completed_production_ns`; shared ligands use `repeat: null`.
+The source is the configured `folder` in `data.yaml`. Destinations use these bases:
+
+| Cluster | Base path |
+| --- | --- |
+| `ranv`, `soma` | `/home/reub0138` |
+| `archer` | `/work/e280/e280-Biggin/shared/reub0138` |
+
+An alchemical destination is
+`<base>/<campaign>/<compound>/<abfe-run>/complex` or ends in `/ligand`,
+preserving the source's run and stage folder names. Vanilla destinations use
+`<base>/<campaign>/<compound>/<vanilla-run>`. The campaign component includes
+any numeric suffix added to avoid an existing folder.
+
+By default, production times are read directly from the source files when
+creating the campaign. Intended time is `nsteps × dt / 1000` from the MDP, and
+completed time is the last valid `Time` beneath a `Step Time` header in the log,
+divided by 1000. Both values are in ns and assume production starts at time zero. Log
+footers and truncated final records are ignored. Completed time may exceed the
+MDP target; zero is recorded as zero.
+
+Vanilla runs use `prod.mdp` and `prod.log` in the source folder. Alchemical runs
+use one window, defaulting to `coul.00`, under `<source>/<window>/prod/`, with
+each run's `production_files` filenames and the production status refresh
+script's defaults.
+Use `--window vdw.01` to select a different window; the selected window is saved
+in the campaign YAML. These times describe that window only. The option has no
+effect on vanilla runs. No trajectory file is required for reading progress.
+
+To create a campaign without checking existing production progress, add
+`--skip-progress-check`:
+
+```bash
+python3 utils/make_simulation_campaign.py \
+  --dataset yuan-dor-c1 --stage alchemical_ligand --cluster soma \
+  --status "Attention required" --skip-progress-check
+```
+
+This includes all runs matching the dataset, stage and status filters without
+reading or validating their MDP/log files, regardless of whether those files
+exist or contain valid progress. Both production time fields are saved as `null`,
+and the campaign YAML records `skip_progress_check: true`. Source paths must
+still be set.
+This flag only affects campaign metadata; it does not reset simulation files.
+
+Without `--skip-progress-check`, if any selected source is unset, or its MDP/log
+is missing, unreadable or invalid, the script reports the affected compounds and
+repeats and creates no campaign. An empty selection also creates no campaign. Reading progress
+requires simulation files to be readable locally. This creates metadata only;
+simulation folders are not copied or submitted, and `data.yaml` is unchanged.
+
 ## Development
 
 The loader and validation live in `data.py`. `build.py` prepares the three views
