@@ -51,6 +51,26 @@ def complex_record(document):
 
 
 class ValidationTests(unittest.TestCase):
+    def test_optional_experimental_dg_accepts_finite_signed_numbers(self):
+        document = example_data()
+        self.assertEqual(validate_data(document), [])
+        for value in (None, -10, -8.5, 0, 2.5):
+            with self.subTest(value=value):
+                complex_record(document)["experimental_dg"] = value
+                self.assertEqual(validate_data(document), [])
+        for value in (True, False, "-8.5", [], {}, float("inf"), float("nan")):
+            with self.subTest(value=value):
+                complex_record(document)["experimental_dg"] = value
+                self.assertEqual(
+                    validate_data(document),
+                    [
+                        (
+                            "datasets.example.complexes.ligand_01.experimental_dg: "
+                            "expected a finite number or null"
+                        )
+                    ],
+                )
+
     def test_optional_analysis_fields_are_validated_for_alchemical_runs(self):
         document = example_data()
         run = complex_record(document)["alchemical_ligand"]

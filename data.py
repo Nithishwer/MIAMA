@@ -149,9 +149,24 @@ def validate_data(document):
             compound_path = f"{path}.complexes.{complex_id}"
             check_identifier(complex_id, compound_path, errors)
             if not check_fields(
-                compound, ("repeats", "alchemical_ligand"), compound_path, errors
+                compound,
+                ("repeats", "alchemical_ligand"),
+                compound_path,
+                errors,
+                optional=("experimental_dg",),
             ):
                 continue
+            experimental_dg = compound.get("experimental_dg")
+            if experimental_dg is not None and (
+                type(experimental_dg) not in (int, float)
+                or (
+                    type(experimental_dg) is float
+                    and not math.isfinite(experimental_dg)
+                )
+            ):
+                errors.append(
+                    f"{compound_path}.experimental_dg: expected a finite number or null"
+                )
             repeats = compound.get("repeats")
             if check_collection(repeats, f"{compound_path}.repeats", errors):
                 for repeat, runs in repeats.items():

@@ -136,8 +136,8 @@ def cleanup_inputs(entries):
     return failed
 
 
-def compile_results(complex_folder, ligand_folder):
-    """Combine complex, ligand and restraint results into abfe_results.csv."""
+def compile_results(complex_folder, ligand_folder, *, force=False):
+    """Combine results into abfe_results.csv; force also rewrites identical CSVs."""
     complex_directory = analysis_folder(complex_folder, "complex")
     ligand_directory = analysis_folder(ligand_folder, "ligand")
     complex_stages = validate_outputs(complex_directory, "complex")
@@ -175,7 +175,7 @@ def compile_results(complex_folder, ligand_folder):
     rows.append(["total", *totals])
     output = complex_directory.parent / "abfe_results.csv"
     header = ["state", *RESULT_COLUMNS]
-    if output.is_file():
+    if output.is_file() and not force:
         try:
             with output.open(encoding="utf-8", newline="") as stream:
                 reader = csv.reader(stream)

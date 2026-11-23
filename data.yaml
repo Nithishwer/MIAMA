@@ -3,6 +3,7 @@ datasets:
     label: Deflorian OX2 set 1
     complexes:
       OX2_42922:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -64,6 +65,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_43289:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -125,6 +127,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_43367:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -186,6 +189,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_43612:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -247,6 +251,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_43703:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -308,6 +313,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_43796:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -369,6 +375,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_43929:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -430,6 +437,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_46433:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -491,6 +499,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_46726:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -552,6 +561,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_46831:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -613,6 +623,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_46853:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -674,6 +685,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_46892:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -735,6 +747,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_46905:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -796,6 +809,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_47311:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -857,6 +871,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_47594:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -918,6 +933,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_47816:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -979,6 +995,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_47821:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1040,6 +1057,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_47848:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1101,6 +1119,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_48083:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1162,6 +1181,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_48732:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1223,6 +1243,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_48845:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1284,6 +1305,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_48951:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1345,6 +1367,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_49599:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1406,6 +1429,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_49847:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1467,6 +1491,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_49860:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1528,6 +1553,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_51964:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1589,6 +1615,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       OX2_52542:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1653,6 +1680,7 @@ datasets:
     label: Piersanti A2A
     complexes:
       A2A_14:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1714,6 +1742,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       A2A_15:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1775,6 +1804,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       A2A_16b:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1836,6 +1866,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       A2A_16c:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1897,6 +1928,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       A2A_17:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -1958,6 +1990,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       A2A_18:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -2019,6 +2052,7 @@ datasets:
             log: '{stage}.prod.{number}.log'
             mdp: '{stage}.prod.{number}.mdp'
       A2A_25b:
+        experimental_dg: null
         repeats:
           1:
             vanilla:

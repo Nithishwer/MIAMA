@@ -34,6 +34,7 @@ datasets:
     label: My dataset
     complexes:
       ligand_01:
+        experimental_dg: null
         repeats:
           1:
             vanilla:
@@ -64,7 +65,9 @@ datasets:
           completed_production_ns: null
 ```
 
-All shown fields except `production_files` are required for alchemical records.
+`experimental_dg` is optional at compound level: enter experimental binding ΔG
+in kcal/mol as a finite number, or leave it `null` when unknown. Negative values
+are valid. All shown run fields except `production_files` are required for alchemical records.
 Vanilla records require `folder`, `status` and `remark`, and optionally include
 `total_production_ns` and `completed_production_ns`.
 
@@ -377,6 +380,47 @@ selected records have their analysis fields refreshed. Generated
 `analysis_remark` and convergence values are refreshed without overwriting manual
 `remark` values or production fields. Status refresh is a snapshot; run it again after
 additional simulation data arrives. No-change refreshes create no backup.
+
+## Plot ABFE results against experiment
+
+With the MIAMA environment activated:
+
+```bash
+python utils/plot_fep_results.py
+python utils/plot_fep_results.py --dataset yuan-dor-c1 --method MBAR
+python utils/plot_fep_results.py --dataset yuan-dor-c2 --method TI --output-dir plots
+python utils/plot_fep_results.py --dataset yuan-dor-c1 --collect
+```
+
+The utility reports `Found` or `Missing` for every selected complex repeat's
+`analysis/abfe_results.csv`. By default it only plots existing CSVs and skips
+missing ones. Use `--collect` to rebuild and overwrite every selected repeat's
+CSV before plotting the new results, including identical CSVs. Compilation uses
+that repeat's complex analysis, its configured shared ligand analysis, and its
+`boresch/resgen_output.txt` restraint correction, then reports `Compiled`.
+Component analyses need valid `ABFE_summary.csv` and `ABFE_convergence.csv` files.
+
+The plot uses the unique `total` row. It defaults to all datasets and MBAR;
+`--method` also accepts BAR and TI. Invalid CSVs and compilation failures are
+reported and skipped, processing continues, and the command returns a nonzero
+exit code. Failed collection preserves the previous CSV and excludes its stale
+values from that invocation's plot. Existing malformed CSVs are only rebuilt
+with `--collect`. Saved analysis and convergence statuses do not filter results.
+
+Enter each compound's `experimental_dg` in `data.yaml` to include it in a plot.
+With `--collect`, compilation also runs when experimental values are unset, but
+those compounds are reported and excluded from plots. Each compound is plotted
+as the mean of its available valid repeats, with sample SD as the vertical error
+bar. A single available repeat has no vertical error bar. Horizontal error bars
+are fixed at ±1 kcal/mol to match the reference figure; they are an assumed
+uncertainty, not measured experimental errors. The square plots include the
+identity line, ±1/2/5 kcal/mol shaded bands, MUE, RMSE, Pearson R and Spearman ρ.
+Undefined correlations display `N/A`.
+
+Each dataset with plottable compounds produces `plots/<dataset>_<method>.png`,
+or writes into `--output-dir` when supplied. Datasets without points are skipped.
+Compilation combines existing leg-analysis outputs; it does not rerun component
+analysis, change the inventory, or open a GUI.
 
 ## Create a simulation campaign
 
